@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KleenPulse Africa</string>
+    <string name="title_activity_main">KleenPulse Africa</string>
+    <string name="package_name">com.kleenpulse.africa</string>
+    <string name="custom_url_scheme">com.kleenpulse.africa</string>
+</resources>
