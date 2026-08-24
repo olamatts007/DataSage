@@ -1,0 +1,12 @@
+{
+  "name": "TaxSage — MSME Tax Nigeria",
+  "short_name": "TaxSage",
+  "description": "Collate, process and report MSME tax returns under the Nigeria Tax Act 2025.",
+  "start_url": "./#/overview",
+  "display": "standalone",
+  "background_color": "#f7f6f2",
+  "theme_color": "#0b3d2b",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

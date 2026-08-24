@@ -39,6 +39,29 @@ Two rule sets (`NTA2025` and the repealed `FA2021`) live in `src/lib/rules.ts` �
 between them to prove the reform's impact on identical records. See **[docs/DESIGN.md](docs/DESIGN.md)**
 for the full architecture and compliance mapping.
 
+## Monetization — Premium paywall
+
+Freemium, sandbox-implemented (simulated payments; swap the `subscribe` store action for live
+Paystack/Flutterwave webhooks to accept real money):
+
+| Plan | Price | Effective |
+|---|---|---|
+| SME Starter | free | classification · 50 records · 3 employees · dashboard · calendar · guide |
+| Premium monthly | ₦7,500 | everything unlocked |
+| Premium quarterly | ₦20,000 | ₦6,667/mo — save 11% |
+| Premium annual | ₦66,000 | ₦5,500/mo — save 27% |
+
+14-day trial (no card), Nigerian checkout mock (card with Luhn check · bank transfer · USSD),
+receipts ledger, auto-renew management, JSON backup/restore, and graceful expiry — records are never
+deleted. Premium unlocks return schedules, print/PDF & CSV exports, unlimited records/employees,
+the old-vs-new reform comparison, compliance scoring and threshold alerts.
+
+## Performance
+
+Route-level code splitting (initial JS ~66 KB gzip; each screen ~2–5 KB), memoized tax/entitlement
+engine, per-route error boundaries, skeleton loaders, PWA manifest, print-optimized reports, and
+schema migrations that never break an existing workspace. 54 engine/billing assertions pass.
+
 ## Run
 
 ```bash
@@ -47,9 +70,9 @@ npm run dev      # http://localhost:5173
 npm run build    # type-check + production bundle
 ```
 
-First run loads a demo small company (₦42m packaged-foods Ltd at 0% CIT). Use **Scenarios** in the
-top bar to switch to a ₦160m trading company (30% CIT + levy), a sole proprietor (PIT + rent
-relief), or start blank. All data persists in `localStorage`.
+First run loads a demo small company (₦42m packaged-foods Ltd at 0% CIT) on the free plan — click
+**★ Try Premium** on the Overview to experience the paywall. Use **Scenarios** in the top bar to
+switch businesses. All data persists in `localStorage`.
 
 ## Disclaimer
 

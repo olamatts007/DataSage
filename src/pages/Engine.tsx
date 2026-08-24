@@ -1,14 +1,18 @@
 import React, { useState } from 'react'
-import { useStore, useEngine } from '../state/store'
+import { useStore, useEngine, useEntitlements } from '../state/store'
 import { citComputation, pitComputation, monthlyVAT, round2 } from '../lib/engine'
 import { WHT_RATES } from '../lib/rules'
 import { naira } from '../lib/format'
 import { PageHead, Notice, Icon, Stat } from '../components/ui'
+import { FeatureGate, UpgradeModal } from '../components/paywall'
 
 export default function Engine() {
   const { state } = useStore()
   const { totals, classification: cls, classificationOld: clsOld, rules, rulesOld } = useEngine()
-  const [showOld, setShowOld] = useState(false)
+  const ent = useEntitlements()
+  const [showOldRaw, setShowOld] = useState(false)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const showOld = showOldRaw && ent.can('law_compare')
   const isCompany = state.profile.structure === 'limited_company'
 
   const now = isCompany ? citComputation(totals, cls, rules) : pitComputation(totals, state.profile, rules)
@@ -34,17 +38,25 @@ export default function Engine() {
         right={
           <div className="row" style={{ background: '#fff', border: '1px solid var(--line)', borderRadius: 99, padding: 3 }}>
             <button className={`btn btn-sm ${!showOld ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowOld(false)}>NTA 2025 (gazetted)</button>
-            <button className={`btn btn-sm ${showOld ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowOld(true)}>Old law (pre-2026)</button>
+            <button className={`btn btn-sm ${showOld ? 'btn-primary' : 'btn-ghost'}`} onClick={() => ent.can('law_compare') ? setShowOld(true) : setUpgradeOpen(true)}>
+              Old law (pre-2026) {!ent.can('law_compare') && <span className="chip gold" style={{ fontSize: 9.5, padding: '1px 6px' }}>★ PREMIUM</span>}
+            </button>
           </div>
         }
       />
 
       <div className="grid g4 mb16">
-        <Stat tone={saving > 0 ? 'gold' : 'accent'} k="Reform impact (tax saved)" v={naira(Math.max(0, saving))}
-          s={saving > 0 ? `under ${rules.shortTitle} vs the repealed law, same records` : 'no difference on current records'} />
+        {ent.can('law_compare') ? (
+          <Stat tone={saving > 0 ? 'gold' : 'accent'} k="Reform impact (tax saved)" v={naira(Math.max(0, saving))}
+            s={saving > 0 ? `under ${rules.shortTitle} vs the repealed law, same records` : 'no difference on current records'} />
+        ) : (
+          <FeatureGate compact feature="law_compare" label="Reform impact — your exact saving">
+            <div className="card stat gold-a"><div className="k">Reform impact</div><div className="v">{naira(Math.max(0, saving))}</div><div className="s">vs repealed law</div></div>
+          </FeatureGate>
+        )}
         <Stat k={isCompany ? 'CIT + Dev Levy (2026 law)' : 'PIT (2026 law)'} v={naira(nowTax)}
           s={profit > 0 ? `effective ${(effRate * 100).toFixed(1)}% of assessable profit` : 'no profit recorded yet'} />
-        <Stat k={`Under repealed law`} v={naira(oldTax)} s={isCompany ? 'CIT bands 0/20/30% + 3% TET' : 'old PIT bands + CRA'} />
+        <Stat k={`Under repealed law`} v={ent.can('law_compare') ? naira(oldTax) : '★'} s={isCompany ? 'CIT bands 0/20/30% + 3% TET' : 'old PIT bands + CRA'} />
         <Stat k="WHT credits → net payable" v={naira((now as any).netPayable)} s={`${naira(totals.whtSuffered)} suffered on income`} />
       </div>
 
@@ -167,6 +179,8 @@ export default function Engine() {
           </div>
         </div>
       </div>
+
+      {upgradeOpen && <UpgradeModal onClose={() => setUpgradeOpen(false)} highlight="law_compare" />}
     </div>
   )
 }

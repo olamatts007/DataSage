@@ -1,16 +1,22 @@
-import React, { useMemo, useState } from 'react'
-import { useStore, useEngine } from '../state/store'
+import React, { useState } from 'react'
+import { useStore, useEngine, useEntitlements } from '../state/store'
 import { citComputation, pitComputation, monthlyVAT, payeFor } from '../lib/engine'
 import { naira, fmtDate, monthName } from '../lib/format'
 import { genericCSV, download } from '../lib/csv'
 import { PageHead, Notice, Icon, PrintHeader, ReportFooter, EmptyState } from '../components/ui'
+import { FeatureGate, PremiumBanner, UpgradeModal } from '../components/paywall'
 
 type Tab = 'annual' | 'vat' | 'wht' | 'paye'
 
 export default function Reports() {
   const { state } = useStore()
   const { totals, classification: cls, rules } = useEngine()
+  const ent = useEntitlements()
   const [tab, setTab] = useState<Tab>('annual')
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+
+  const guardPrint = () => (ent.can('print_export') ? window.print() : setUpgradeOpen(true))
+  const guardExport = (fn: () => void) => (ent.can('print_export') ? fn() : setUpgradeOpen(true))
   const isCompany = state.profile.structure === 'limited_company'
 
   const annual = isCompany ? citComputation(totals, cls, rules) : pitComputation(totals, state.profile, rules)
@@ -72,15 +78,17 @@ export default function Reports() {
         title="Returns & Reports — Report"
         sub="Return-ready schedules generated from your collated records and processed figures. Export as CSV for your accountant or the NRS/state e-filing portals, or print to PDF."
         right={
-          <button className="btn btn-primary no-print" onClick={() => window.print()}><Icon name="print" size={14} /> Print / save PDF</button>
+          <button className="btn btn-primary no-print" onClick={guardPrint}>
+            <Icon name="print" size={14} /> Print / save PDF {!ent.can('print_export') && <span className="chip gold" style={{ fontSize: 9.5 }}>★</span>}
+          </button>
         }
       />
 
       <div className="tabs no-print">
         <button className={tab === 'annual' ? 'on' : ''} onClick={() => setTab('annual')}>{isCompany ? 'CIT self-assessment' : 'PIT self-assessment'}</button>
-        <button className={tab === 'vat' ? 'on' : ''} onClick={() => setTab('vat')}>Monthly VAT return</button>
-        <button className={tab === 'wht' ? 'on' : ''} onClick={() => setTab('wht')}>WHT schedule</button>
-        <button className={tab === 'paye' ? 'on' : ''} onClick={() => setTab('paye')}>PAYE annual return</button>
+        <button className={tab === 'vat' ? 'on' : ''} onClick={() => setTab('vat')}>Monthly VAT return {!ent.can('return_schedules') && '★'}</button>
+        <button className={tab === 'wht' ? 'on' : ''} onClick={() => setTab('wht')}>WHT schedule {!ent.can('return_schedules') && '★'}</button>
+        <button className={tab === 'paye' ? 'on' : ''} onClick={() => setTab('paye')}>PAYE annual return {!ent.can('return_schedules') && '★'}</button>
       </div>
 
       {tab === 'annual' && (
@@ -94,7 +102,7 @@ export default function Reports() {
                   {filingStatus(isCompany ? 'CIT' : 'PIT', `FY${state.year}`) && <> · <span className="chip green">marked filed</span></>}
                 </p>
               </div>
-              <button className="btn btn-ghost btn-sm no-print" onClick={exportAnnual}><Icon name="download" size={14} /> CSV</button>
+              <button className="btn btn-ghost btn-sm no-print" onClick={() => guardExport(exportAnnual)}><Icon name="download" size={14} /> CSV</button>
             </div>
 
             <div className="grid g4 mb16">
@@ -136,6 +144,7 @@ export default function Reports() {
 
       {tab === 'vat' && (
         <div className="grid">
+          <FeatureGate feature="return_schedules" label="Monthly VAT return schedule">
           <div className="card card-pad">
             <div className="flex-between mb8">
               <div>
@@ -146,7 +155,7 @@ export default function Reports() {
                 <select className="inp" style={{ width: 180 }} value={vatMonth} onChange={(e) => setVatMonth(e.target.value)}>
                   {vatRows.map((r) => <option key={r.month} value={r.month}>{monthName(r.month)}</option>)}
                 </select>
-                <button className="btn btn-ghost btn-sm" onClick={exportVAT} disabled={!vatSel}><Icon name="download" size={14} /> CSV</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => guardExport(exportVAT)} disabled={!vatSel}><Icon name="download" size={14} /> CSV</button>
               </div>
             </div>
 
@@ -185,19 +194,21 @@ export default function Reports() {
               </>
             )}
           </div>
+          </FeatureGate>
           <ReportFooter />
         </div>
       )}
 
       {tab === 'wht' && (
         <div className="grid">
+          <FeatureGate feature="return_schedules" label="Withholding tax schedule & credit register">
           <div className="card card-pad">
             <div className="flex-between mb8">
               <div>
                 <h3 className="card-title">Withholding tax schedule</h3>
                 <p className="card-sub">Deductions you must remit (21st monthly) and credits you can claim against your income tax.</p>
               </div>
-              <button className="btn btn-ghost btn-sm no-print" onClick={exportWHT}><Icon name="download" size={14} /> CSV</button>
+              <button className="btn btn-ghost btn-sm no-print" onClick={() => guardExport(exportWHT)}><Icon name="download" size={14} /> CSV</button>
             </div>
             <div className="grid g2">
               <div>
@@ -244,19 +255,21 @@ export default function Reports() {
                 customer — credits without the corresponding credit note are routinely rejected at assessment.</Notice>
             </div>
           </div>
+          </FeatureGate>
           <ReportFooter />
         </div>
       )}
 
       {tab === 'paye' && (
         <div className="grid">
+          <FeatureGate feature="return_schedules" label="Employer annual PAYE return (Form H1)">
           <div className="card card-pad">
             <div className="flex-between mb8">
               <div>
                 <h3 className="card-title">Employer annual PAYE return (Form H1 basis)</h3>
                 <p className="card-sub">Declaration of emoluments and PAYE deducted — due with the {state.profile.state} IRS by 31 January {state.year + 1}.</p>
               </div>
-              <button className="btn btn-ghost btn-sm no-print" onClick={exportPAYE} disabled={!payeResults.length}><Icon name="download" size={14} /> CSV</button>
+              <button className="btn btn-ghost btn-sm no-print" onClick={() => guardExport(exportPAYE)} disabled={!payeResults.length}><Icon name="download" size={14} /> CSV</button>
             </div>
             {payeResults.length === 0 ? <EmptyState icon="payroll" title="No payroll data">Add employees on the Payroll screen first.</EmptyState> : (
               <table className="tbl">
@@ -286,9 +299,17 @@ export default function Reports() {
               </table>
             )}
           </div>
+          </FeatureGate>
           <ReportFooter />
         </div>
       )}
+
+      {!ent.can('return_schedules') && (
+        <div className="mt16 no-print">
+          <PremiumBanner feature="return_schedules" message={<>The full filing pack — <b>CIT/PIT, monthly VAT, WHT schedule & PAYE annual return</b> — unlocks with any Premium plan.</>} />
+        </div>
+      )}
+      {upgradeOpen && <UpgradeModal onClose={() => setUpgradeOpen(false)} highlight="return_schedules" />}
     </div>
   )
 }

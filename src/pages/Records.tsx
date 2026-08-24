@@ -1,15 +1,19 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { useStore, useEngine } from '../state/store'
+import { useStore, useEngine, useEntitlements } from '../state/store'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES, WHT_RATES } from '../lib/rules'
 import { naira, fmtDate, uid } from '../lib/format'
 import { transactionsToCSV, parseTransactionsCSV, download } from '../lib/csv'
 import { Transaction } from '../lib/types'
 import { PageHead, Notice, EmptyState, Icon } from '../components/ui'
+import { LimitMeter, PremiumBanner, UpgradeModal } from '../components/paywall'
 
 export default function Records() {
   const { state, dispatch } = useStore()
   const { classification: cls, totals, rules } = useEngine()
+  const ent = useEntitlements()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const atLimit = state.transactions.length >= ent.limits.records
 
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -50,7 +54,7 @@ export default function Records() {
 
   const addTx = () => {
     const amount = Number(form.amount.replace(/,/g, ''))
-    if (!amount || amount <= 0) return
+    if (!amount || amount <= 0 || atLimit) return
     dispatch({
       type: 'addTx',
       tx: {
@@ -72,7 +76,7 @@ export default function Records() {
 
   const onImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !ent.can('csv_import')) return
     file.text().then((text) => {
       const { txs, errors } = parseTransactionsCSV(text)
       if (txs.length) dispatch({ type: 'addManyTx', txs })
@@ -105,8 +109,12 @@ export default function Records() {
         sub={<>Every sale and expense, tagged with VAT treatment and WHT events. This ledger is your <b>legal book of account</b> under the NTAA 2025 — the NRS can request it during a desk review.</>}
         right={
           <>
-            <button className="btn btn-ghost" onClick={() => fileRef.current?.click()}><Icon name="upload" size={14} /> Import CSV</button>
-            <button className="btn btn-ghost" disabled={!state.transactions.length} onClick={() => download(`taxsage-ledger-${state.year}.csv`, transactionsToCSV(state.transactions))}><Icon name="download" size={14} /> Export CSV</button>
+            <button className="btn btn-ghost" onClick={() => ent.can('csv_import') ? fileRef.current?.click() : setUpgradeOpen(true)}>
+              <Icon name="upload" size={14} /> Import CSV {!ent.can('csv_import') && <span className="chip gold" style={{ fontSize: 9.5 }}>★</span>}
+            </button>
+            <button className="btn btn-ghost" disabled={!state.transactions.length} onClick={() => ent.can('csv_export') ? download(`taxsage-ledger-${state.year}.csv`, transactionsToCSV(state.transactions)) : setUpgradeOpen(true)}>
+              <Icon name="download" size={14} /> Export CSV {!ent.can('csv_export') && <span className="chip gold" style={{ fontSize: 9.5 }}>★</span>}
+            </button>
             <input ref={fileRef} type="file" accept=".csv,text/csv" style={{ display: 'none' }} onChange={onImport} />
           </>
         }
@@ -118,6 +126,15 @@ export default function Records() {
             Imported <b>{importCount}</b> record(s). {importErrors.length > 0 && <>{importErrors.slice(0, 3).map((e) => <div key={e} className="small">⚠ {e}</div>)}</>}
             <div className="hint mt8">CSV columns: date,type,category,description,amount,vat,wht_rate,party_name,party_has_tin,non_deductible</div>
           </Notice>
+        </div>
+      )}
+
+      {atLimit && (
+        <div className="mb16">
+          <PremiumBanner
+            feature="unlimited_records"
+            message={<>You've reached the free limit of <b>{ent.limits.records}</b> records. Go unlimited — from ₦5,500/month billed annually.</>}
+          />
         </div>
       )}
 
@@ -185,7 +202,11 @@ export default function Records() {
             </div>
           )}
           <div style={{ alignSelf: 'end' }}>
-            <button className="btn btn-primary" style={{ width: '100%' }} onClick={addTx} disabled={!form.amount}><Icon name="plus" size={14} /> Record</button>
+            {atLimit ? (
+              <button className="btn btn-gold" style={{ width: '100%' }} onClick={() => setUpgradeOpen(true)}>★ Unlock unlimited</button>
+            ) : (
+              <button className="btn btn-primary" style={{ width: '100%' }} onClick={addTx} disabled={!form.amount}><Icon name="plus" size={14} /> Record</button>
+            )}
           </div>
         </div>
         {whtExemptNote && <div className="mt8"><Notice tone="blue">{whtExemptNote}</Notice></div>}
@@ -220,7 +241,10 @@ export default function Records() {
             </select>
           </div>
         </div>
-        {rows.length === 0 ? (
+        {isFinite(ent.limits.records) && <LimitMeter used={state.transactions.length} limit={ent.limits.records} noun="ledger records" />}
+      <div className={isFinite(ent.limits.records) ? 'mt8' : ''} />
+
+      {rows.length === 0 ? (
           <EmptyState icon="records" title="No records yet"
             action={<button className="btn btn-primary" onClick={() => document.querySelector<HTMLInputElement>('input.inp')?.focus()}>Add your first transaction</button>}>
             Import a CSV from your bank/bookkeeping, or add entries above. MSMEs must keep books of account — from 2026 this is strictly enforced.
@@ -256,6 +280,8 @@ export default function Records() {
           </div>
         )}
       </div>
+
+      {upgradeOpen && <UpgradeModal onClose={() => setUpgradeOpen(false)} />}
     </div>
   )
 }

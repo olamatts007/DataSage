@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useStore, useEngine } from '../state/store'
 import { Icon } from './ui'
+import { PlanBadge } from './paywall'
 
 export const ROUTES = [
   { group: 'Comply', items: [
@@ -18,6 +19,7 @@ export const ROUTES = [
   ]},
   { group: 'Reference', items: [
     { hash: '#/guide', icon: 'guide', label: 'The New Law' },
+    { hash: '#/billing', icon: 'naira', label: 'Subscription' },
   ]},
 ]
 
@@ -67,6 +69,7 @@ export function Layout({ children, route }: { children: React.ReactNode; route: 
         <div className="topbar no-print">
           <h1>{page?.label ?? 'TaxSage'}</h1>
           <div className="spacer" />
+          <PlanBadge />
           <span className={`chip ${classification.isSmall ? 'green' : 'blue'}`}>
             {state.profile.name ? state.profile.name : 'Unnamed business'} · {classification.isSmall ? 'SMALL COMPANY — 0% CIT' : isCompany ? 'STANDARD COMPANY' : state.profile.structure.replace('_', ' ').toUpperCase()}
           </span>

@@ -4,6 +4,7 @@ import { complianceScore, generateDeadlines, monthlyVAT, urgency, citComputation
 import { NTA2025 } from '../lib/rules'
 import { naira, kfmt, monthName } from '../lib/format'
 import { Stat, Notice, Meter, PageHead, Icon } from '../components/ui'
+import { TrialCta, FeatureGate } from '../components/paywall'
 
 export default function Overview() {
   const { state } = useStore()
@@ -45,6 +46,8 @@ export default function Overview() {
           </>
         }
       />
+
+      <TrialCta />
 
       {!state.onboarded && (
         <div className="mb16">
@@ -176,34 +179,36 @@ export default function Overview() {
         </div>
 
         <div className="grid" style={{ alignContent: 'start' }}>
-          {/* compliance score */}
-          <div className="card card-pad">
-            <div className="row">
-              <div className="score-ring">
-                <svg width="116" height="116">
-                  <circle cx="58" cy="58" r="50" fill="none" stroke="#eeece4" strokeWidth="10" />
-                  <circle cx="58" cy="58" r="50" fill="none" stroke={score >= 80 ? 'var(--green-600)' : score >= 50 ? 'var(--gold-500)' : 'var(--red)'}
-                    strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(score / 100) * 314} 314`} />
-                </svg>
-                <div className="center"><div><b>{score}%</b><span>compliant</span></div></div>
-              </div>
-              <div className="grow">
-                <h3 className="card-title">Compliance health</h3>
-                <p className="card-sub">NTAA 2025 readiness checks.</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  {checks.map((c) => (
-                    <div key={c.label} className="row" style={{ alignItems: 'flex-start' }}>
-                      <span style={{ color: c.ok ? 'var(--green-600)' : 'var(--red)', marginTop: 1 }}><Icon name={c.ok ? 'check' : 'alert'} size={14} /></span>
-                      <div>
-                        <div className="small" style={{ fontWeight: 600 }}>{c.label}</div>
-                        {!c.ok && <div className="hint" style={{ marginTop: 1 }}>{c.fix}</div>}
+          {/* compliance score — premium intelligence */}
+          <FeatureGate feature="radar_alerts" label="Compliance health score & NTAA readiness checks">
+            <div className="card card-pad">
+              <div className="row">
+                <div className="score-ring">
+                  <svg width="116" height="116">
+                    <circle cx="58" cy="58" r="50" fill="none" stroke="#eeece4" strokeWidth="10" />
+                    <circle cx="58" cy="58" r="50" fill="none" stroke={score >= 80 ? 'var(--green-600)' : score >= 50 ? 'var(--gold-500)' : 'var(--red)'}
+                      strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(score / 100) * 314} 314`} />
+                  </svg>
+                  <div className="center"><div><b>{score}%</b><span>compliant</span></div></div>
+                </div>
+                <div className="grow">
+                  <h3 className="card-title">Compliance health</h3>
+                  <p className="card-sub">NTAA 2025 readiness checks.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {checks.map((c) => (
+                      <div key={c.label} className="row" style={{ alignItems: 'flex-start' }}>
+                        <span style={{ color: c.ok ? 'var(--green-600)' : 'var(--red)', marginTop: 1 }}><Icon name={c.ok ? 'check' : 'alert'} size={14} /></span>
+                        <div>
+                          <div className="small" style={{ fontWeight: 600 }}>{c.label}</div>
+                          {!c.ok && <div className="hint" style={{ marginTop: 1 }}>{c.fix}</div>}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </FeatureGate>
 
           {/* next deadlines */}
           <div className="card card-pad">
@@ -238,22 +243,24 @@ export default function Overview() {
             </div>
           </div>
 
-          {/* obligations checklist */}
-          <div className="card card-pad">
-            <h3 className="card-title">Your obligations under NTA/NTAA 2025</h3>
-            <p className="card-sub">Derived from your classification.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {cls.obligations.filter((o) => o.applies).map((o) => (
-                <div key={o.code} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '9px 12px' }}>
-                  <div className="row flex-between">
-                    <span className="small" style={{ fontWeight: 700 }}>{o.title}</span>
-                    <span className="chip dark">{o.code}</span>
+          {/* obligations checklist — premium intelligence */}
+          <FeatureGate feature="radar_alerts" label="Personalised obligations map under the NTAA 2025">
+            <div className="card card-pad">
+              <h3 className="card-title">Your obligations under NTA/NTAA 2025</h3>
+              <p className="card-sub">Derived from your classification.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {cls.obligations.filter((o) => o.applies).map((o) => (
+                  <div key={o.code} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '9px 12px' }}>
+                    <div className="row flex-between">
+                      <span className="small" style={{ fontWeight: 700 }}>{o.title}</span>
+                      <span className="chip dark">{o.code}</span>
+                    </div>
+                    <div className="hint mt8" style={{ marginTop: 3 }}>{o.detail}</div>
                   </div>
-                  <div className="hint mt8" style={{ marginTop: 3 }}>{o.detail}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </FeatureGate>
         </div>
       </div>
 

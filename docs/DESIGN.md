@@ -148,10 +148,47 @@ Export: CSV for every schedule; one-click **print/PDF** via print stylesheet.
 | `#/reports` | Return schedules: CIT/PIT self-assessment, VAT, WHT, PAYE; print/CSV |
 | `#/calendar` | 12-month filing calendar, countdowns, penalty exposure |
 | `#/guide` | Plain-English digest of the four Acts keyed to in-app features |
+| `#/billing` | Subscription management, receipts, backup/restore, danger zone |
 
 ---
 
-## 6. Compliance mapping (features → law)
+## 6. Monetization — Premium paywall
+
+Freemium model with locally-persisted subscription state (`src/lib/billing.ts`, **sandbox** — payments
+simulated, no real charge; swap `subscribe` action for a Paystack/Flutterwave webhook to go live).
+
+| Plan | Price | Effective |
+|---|---|---|
+| **SME Starter (Free)** | ₦0 | classification, 50-record ledger, 3-employee payroll, dashboard, calendar, guide, VAT summary |
+| **Premium — Monthly** | ₦7,500 | all features unlocked |
+| **Premium — Quarterly** | ₦20,000 | ≈ ₦6,667/mo *(save 11%)* |
+| **Premium — Annual** | ₦66,000 | ≈ ₦5,500/mo *(save 27%)* |
+| 14-day free trial | — | once per business, no card |
+
+**Entitlement model:** feature keys (`unlimited_records`, `csv_import/export`, `return_schedules`,
+`print_export`, `law_compare`, `unlimited_employees`, `backup_restore`, `radar_alerts`) resolved by
+`computeEntitlement(subscription, now)` → UI gates via `<FeatureGate>` (blurred preview + upgrade CTA),
+`<PremiumBanner>` (inline upsell), and `<LimitMeter>` (usage bars at 80%+ turn amber, 100% red).
+Checkout UX: period toggle → sandbox card (Luhn-validated), bank transfer (copy-to-clipboard dedicated
+account), or USSD (`*737*…#`) → live receipt & period stamping. Billing screen handles auto-renew
+toggling, expiry/days-left, receipts ledger, JSON backup/restore, and downgrade — **records are never
+deleted** when a plan lapses; premium surfaces simply re-lock.
+
+## 7. Performance & engineering standards
+
+- **Route-level code splitting** (`React.lazy` + `Suspense`): initial shell ~66 KB gzip; every page is
+  its own chunk (2–5 KB gzip) fetched on first visit — measured in the Vite production build.
+- **Memoized engine**: the full tax computation, classification and entitlement graphs recompute only
+  when their store slices change (`useMemo` on `state`, `state.subscription`).
+- **Error boundaries** per route and app-level — one bad screen can never corrupt or lose records.
+- **Skeleton loading** states, `aria` roles/labels on dialogs & tabs, keyboard `Escape` to close modals,
+  focus-safe forms; PWA manifest + SVG icon; print stylesheet keeps exports clean (gated Chrome hidden).
+- **Local-first persistence** with schema-migration merge (`mergeDefaults`) so shipping v2 never breaks
+  a v1 workspace; full JSON backup/restore available from Billing.
+- **Verified core**: 24 tax-engine assertions + 30 billing assertions run green (edge cases: expiry
+  transitions, trial lifecycle, limit enforcement, band boundaries, WHT doubling).
+
+## 8. Compliance mapping (features → law)
 
 | App feature | Legal source |
 |---|---|

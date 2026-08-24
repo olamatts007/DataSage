@@ -1,14 +1,18 @@
 import React, { useState } from 'react'
-import { useStore, useEngine } from '../state/store'
+import { useStore, useEngine, useEntitlements } from '../state/store'
 import { payeFor } from '../lib/engine'
 import { naira, uid } from '../lib/format'
 import { genericCSV, download } from '../lib/csv'
 import { PageHead, Notice, EmptyState, Icon, Stat } from '../components/ui'
+import { LimitMeter, FeatureGate, PremiumBanner, UpgradeModal } from '../components/paywall'
 
 export default function Payroll() {
   const { state, dispatch } = useStore()
   const { rules, rulesOld } = useEngine()
+  const ent = useEntitlements()
   const [form, setForm] = useState({ name: '', role: '', annualGross: '', pension: true })
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const atLimit = state.employees.length >= ent.limits.employees
 
   const results = state.employees.map((e) => payeFor(e, rules))
   const monthlyRemit = results.reduce((s, r) => s + r.monthlyTax, 0)
@@ -17,7 +21,7 @@ export default function Payroll() {
 
   const add = () => {
     const g = Number(form.annualGross.replace(/,/g, ''))
-    if (!form.name || !g) return
+    if (!form.name || !g || atLimit) return
     dispatch({ type: 'addEmployee', e: { id: uid(), name: form.name, role: form.role || 'Staff', annualGross: g, pension: form.pension } })
     setForm({ name: '', role: '', annualGross: '', pension: true })
   }
@@ -43,8 +47,24 @@ export default function Payroll() {
       <PageHead
         title="Payroll & PAYE"
         sub={<>PAYE is computed on the <b>new NTA 2025 bands</b> (first ₦800,000 at 0%), after the statutory 8% pension relief. Remit to {state.profile.state} IRS by the <b>10th</b> of the following month; employer annual return due <b>31 January</b>.</>}
-        right={<button className="btn btn-ghost" onClick={exportSchedule} disabled={!results.length}><Icon name="download" size={14} /> PAYE schedule CSV</button>}
+        right={
+          <button className="btn btn-ghost" onClick={() => ent.can('csv_export') ? exportSchedule() : setUpgradeOpen(true)} disabled={!results.length}>
+            <Icon name="download" size={14} /> PAYE schedule CSV {!ent.can('csv_export') && <span className="chip gold" style={{ fontSize: 9.5 }}>★</span>}
+          </button>
+        }
       />
+
+      {atLimit && (
+        <div className="mb16">
+          <PremiumBanner
+            feature="unlimited_employees"
+            message={<>Payroll is full at <b>{ent.limits.employees}</b> employees on the free plan. Go unlimited and grow your team without caps.</>}
+          />
+        </div>
+      )}
+      {isFinite(ent.limits.employees) && (
+        <div className="mb8"><LimitMeter used={state.employees.length} limit={ent.limits.employees} noun="free employee slots" /></div>
+      )}
 
       <div className="grid g3 mb16">
         <Stat tone="accent" k="Monthly PAYE to remit" v={naira(monthlyRemit)} s={`due 10th of next month · ${state.profile.state} IRS`} />
@@ -65,7 +85,13 @@ export default function Payroll() {
               <option value="no">Not applicable</option>
             </select>
           </div>
-          <div><button className="btn btn-primary" style={{ width: '100%' }} onClick={add} disabled={!form.name || !form.annualGross}><Icon name="plus" size={14} /> Add</button></div>
+          <div>
+            {atLimit ? (
+              <button className="btn btn-gold" style={{ width: '100%' }} onClick={() => setUpgradeOpen(true)}>★ Unlock unlimited</button>
+            ) : (
+              <button className="btn btn-primary" style={{ width: '100%' }} onClick={add} disabled={!form.name || !form.annualGross}><Icon name="plus" size={14} /> Add</button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -109,6 +135,7 @@ export default function Payroll() {
           </div>
 
           <div className="grid g2">
+            <FeatureGate feature="law_compare" label="Old law vs NTA 2025 payroll comparison" compact>
             <div className="card card-pad">
               <h3 className="card-title">Old law vs NTA 2025 — what changed for your staff</h3>
               <p className="card-sub">First ₦800k now tax-free; CRA replaced by rent relief (rent relief is claimed by staff in their own filings, so PAYE here applies statutory pension relief only).</p>
@@ -146,6 +173,7 @@ export default function Payroll() {
                 </tbody>
               </table>
             </div>
+            </FeatureGate>
             <div className="card card-pad">
               <h3 className="card-title">Employer filings</h3>
               <p className="card-sub">Track the two recurring duties.</p>
@@ -178,6 +206,8 @@ export default function Payroll() {
           </div>
         </>
       )}
+
+      {upgradeOpen && <UpgradeModal onClose={() => setUpgradeOpen(false)} />}
     </div>
   )
 }
