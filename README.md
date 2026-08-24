@@ -1,1 +1,57 @@
-# DataSage
+# TaxSage 🇳🇬
+
+**MSME tax collation, processing and reporting under Nigeria's gazetted 2025 Tax Reform Acts.**
+
+TaxSage helps Nigerian micro, small and medium enterprises comply with the four Acts signed in
+June 2025 and effective **1 January 2026**: the Nigeria Tax Act (NTA), Nigeria Tax Administration
+Act (NTAA), Nigeria Revenue Service Act, and Joint Revenue Board Act.
+
+![stack](https://img.shields.io/badge/stack-React%2018%20%2B%20TypeScript%20%2B%20Vite-0b3d2b)
+
+## The workflow: Collate → Process → Report
+
+| Stage | Screen | What it does |
+|---|---|---|
+| **Comply** | Business Profile | 3-step wizard → NTA 2025 classification (small vs standard) + generated obligations |
+| | Overview | Compliance health score, tax position cards, threshold radar, next deadlines |
+| **Collate** | Records Ledger | Income/expense capture with VAT treatment & WHT tagging, CSV import/export — your legal books of account |
+| | Payroll | Employee register → monthly PAYE under the new bands, employer filing tracker |
+| **Process** | Tax Engine | Transparent computations with workings: CIT + 4% Development Levy *or* PIT bands + rent relief, VAT netting, WHT register — plus an **old-law toggle** that prices your saving from the reform |
+| **Report** | Returns & Reports | Return-ready schedules: CIT/PIT self-assessment, monthly VAT return, WHT schedule, PAYE annual return — CSV export + print/PDF |
+| | Filing Calendar | Deadlines generated from your year-end (PAYE 10th · VAT/WHT 21st · CIT FYE+6m · PIT 31 Mar) with NTAA penalty exposure |
+| **Reference** | The New Law | Plain-English digest of all four Acts, keyed to app features |
+
+## Rules implemented (as gazetted)
+
+- **Small company** (≤ ₦100m turnover **and** ≤ ₦250m fixed assets, professional services
+  excluded): **0% CIT**, CGT-exempt, Development-Levy-exempt, WHT-relieved both ways, VAT relief
+  (opt-in allowed). The 20% medium band was abolished in the final Act.
+- **Standard companies**: 30% CIT + **4% Development Levy** (consolidates TET/NASENI/PTF/IT levies).
+- **PIT bands**: 0% to ₦800,000 · 15% to ₦3m · 18% to ₦12m · 21% to ₦25m · 23% to ₦50m · 25% above.
+  CRA abolished → **rent relief** = lower of 20% of annual rent or ₦500,000.
+- **VAT** 7.5%; zero-rated staples (food, health, education, power); monthly return by the 21st.
+- **WHT (2024 Regulations)**: 10% dividends/interest/rent · 10%/5% royalties · 5% professional fees ·
+  2% supplies/construction/other services · 15% directors' fees · **rate doubles without a Tax ID**.
+- **NTAA administration**: mandatory Tax ID; ₦100k + ₦50k/month late-filing fines; ₦5m for contracts
+  with unregistered vendors.
+
+Two rule sets (`NTA2025` and the repealed `FA2021`) live in `src/lib/rules.ts` — the engine switches
+between them to prove the reform's impact on identical records. See **[docs/DESIGN.md](docs/DESIGN.md)**
+for the full architecture and compliance mapping.
+
+## Run
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production bundle
+```
+
+First run loads a demo small company (₦42m packaged-foods Ltd at 0% CIT). Use **Scenarios** in the
+top bar to switch to a ₦160m trading company (30% CIT + levy), a sole proprietor (PIT + rent
+relief), or start blank. All data persists in `localStorage`.
+
+## Disclaimer
+
+TaxSage generates **preparation schedules**, not filed returns. Filings happen on the NRS and State
+IRS e-portals. Always confirm positions with a licensed tax practitioner.
