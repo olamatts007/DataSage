@@ -1,7 +1,9 @@
-import React, { Suspense, lazy, useEffect } from 'react'
-import { StoreProvider } from './state/store'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
+import { StoreProvider, useStore } from './state/store'
 import { Layout, useHashRoute } from './components/Layout'
 import { ErrorBoundary, RouteSkeleton } from './components/chrome'
+import AccessGate from './components/AccessGate'
+import { checkCode, isAdminAuthed, readAccessSession, writeAccessSession } from './lib/access'
 
 // route-level code splitting — the initial chunk stays under ~90KB raw,
 // each screen loads on first visit and is cached afterwards.
@@ -14,6 +16,7 @@ const Reports = lazy(() => import('./pages/Reports'))
 const CalendarPage = lazy(() => import('./pages/CalendarPage'))
 const Guide = lazy(() => import('./pages/Guide'))
 const Billing = lazy(() => import('./pages/Billing'))
+const Admin = lazy(() => import('./pages/Admin'))
 
 const ROUTE_TITLES: Record<string, string> = {
   '#/overview': 'Overview',
@@ -25,10 +28,10 @@ const ROUTE_TITLES: Record<string, string> = {
   '#/calendar': 'Filing Calendar',
   '#/guide': 'The 2025 Tax Acts',
   '#/billing': 'Subscription & Billing',
+  '#/admin': 'Admin — Access Control',
 }
 
-function Router() {
-  const [route] = useHashRoute()
+function Router({ route }: { route: string }) {
   useEffect(() => {
     document.title = `${ROUTE_TITLES[route] ?? 'Overview'} · TaxSage`
   }, [route])
@@ -43,6 +46,7 @@ function Router() {
     case '#/calendar': page = <CalendarPage />; break
     case '#/guide': page = <Guide />; break
     case '#/billing': page = <Billing />; break
+    case '#/admin': page = <Admin />; break
     default: page = <Overview />
   }
   return (
@@ -52,15 +56,43 @@ function Router() {
   )
 }
 
-export default function App() {
+/** Validates a saved access session against the live code registry. */
+function sessionValid(stateCodes: Parameters<typeof checkCode>[0]): string | null {
+  const sess = readAccessSession()
+  if (!sess) return null
+  const res = checkCode(stateCodes, sess.code)
+  if (res.ok) return sess.code
+  // codes that have already been consumed by *this* device still hold:
+  // exhausted codes stay valid for their existing session holders
+  if (!res.ok && res.reason === 'exhausted') return sess.code
+  writeAccessSession(null) // revoked/expired/unknown → boot back to the gate
+  return null
+}
+
+function Shell() {
+  const { state } = useStore()
   const [route] = useHashRoute()
+  const [grantedCode, setGrantedCode] = useState<string | null>(() => sessionValid(state.accessCodes))
+  const isAdmin = route.startsWith('#/admin') || isAdminAuthed()
+
+  const gateOpen = !isAdmin && !grantedCode
+  return (
+    <ErrorBoundary>
+      {gateOpen ? (
+        <AccessGate onGranted={() => setGrantedCode(readAccessSession()?.code ?? 'ok')} />
+      ) : (
+        <Layout route={route}>
+          <Router route={route} />
+        </Layout>
+      )}
+    </ErrorBoundary>
+  )
+}
+
+export default function App() {
   return (
     <StoreProvider>
-      <ErrorBoundary>
-        <Layout route={route}>
-          <Router />
-        </Layout>
-      </ErrorBoundary>
+      <Shell />
     </StoreProvider>
   )
 }

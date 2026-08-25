@@ -5,12 +5,14 @@ import {
   Entitlement, FREE_SUB, Payment, Period, Subscription, computeEntitlement,
   paymentRef, periodEnd, trialEnd, PLANS,
 } from '../lib/billing'
+import { AccessCode } from '../lib/access'
 
 const KEY = 'taxsage.v1'
 
 export interface PersistedState extends AppState {
   subscription: Subscription
   payments: Payment[]
+  accessCodes: AccessCode[]
 }
 
 type Action =
@@ -30,6 +32,9 @@ type Action =
   | { type: 'cancelSubscription' }
   | { type: 'resumeSubscription' }
   | { type: 'downgradeFree' }
+  | { type: 'addAccessCode'; code: AccessCode }
+  | { type: 'revokeAccessCode'; id: string }
+  | { type: 'activateAccessCode'; id: string }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -87,6 +92,52 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       return { ...s, subscription: { ...s.subscription, autoRenew: true, cancelledAt: '' } }
     case 'downgradeFree':
       return { ...s, subscription: { ...FREE_SUB, trialUsed: s.subscription.trialUsed, trialEnd: s.subscription.trialEnd } }
+    case 'addAccessCode':
+      return { ...s, accessCodes: [...s.accessCodes, a.code] }
+    case 'revokeAccessCode':
+      return { ...s, accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, revoked: true } : c)) }
+    case 'activateAccessCode': {
+      const code = s.accessCodes.find((c) => c.id === a.id)
+      if (!code) return s
+      const stamp = { at: now.toISOString() }
+      // bestow the grant attached to the code
+      if (code.grant === 'trial') {
+        return {
+          ...s,
+          accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, activations: [...c.activations, stamp] } : c)),
+          subscription: {
+            ...s.subscription,
+            status: 'trialing',
+            period: 'monthly',
+            trialUsed: true,
+            trialEnd: trialEnd(now),
+            cancelledAt: '',
+          },
+          payments: [...s.payments, {
+            id: paymentRef(), kind: 'grant', period: 'trial', method: 'access-code', amount: 0,
+            date: now.toISOString(), reference: code.code, note: `Access grant — 14-day trial (${code.note || 'customer test run'})`,
+          }],
+        }
+      }
+      const plan = PLANS.premium(code.grant)
+      return {
+        ...s,
+        accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, activations: [...c.activations, stamp] } : c)),
+        subscription: {
+          status: 'active',
+          period: code.grant,
+          currentPeriodEnd: periodEnd(now, code.grant),
+          trialUsed: s.subscription.trialUsed,
+          trialEnd: s.subscription.trialEnd,
+          autoRenew: false, // grant codes do not auto-bill
+          cancelledAt: '',
+        },
+        payments: [...s.payments, {
+          id: paymentRef(), kind: 'grant', period: code.grant, method: 'access-code', amount: plan.price,
+          date: now.toISOString(), reference: code.code, note: `Access grant — Premium ${code.grant} (${code.note || 'customer test run'})`,
+        }],
+      }
+    }
   }
 }
 
@@ -110,6 +161,7 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     filings: parsed.filings ?? [],
     subscription: { ...FREE_SUB, ...(parsed.subscription ?? {}) },
     payments: parsed.payments ?? [],
+    accessCodes: parsed.accessCodes ?? [],
   }
 }
 

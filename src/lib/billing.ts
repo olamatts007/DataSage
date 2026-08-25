@@ -56,9 +56,9 @@ export const PERIOD_DAYS: Record<Period, number> = {
 
 export interface Payment {
   id: string
-  kind: 'trial' | 'subscription'
+  kind: 'trial' | 'subscription' | 'grant'
   period: Period | 'trial'
-  method: 'card' | 'transfer' | 'ussd' | 'trial'
+  method: 'card' | 'transfer' | 'ussd' | 'trial' | 'access-code'
   amount: number
   date: string // ISO
   reference: string

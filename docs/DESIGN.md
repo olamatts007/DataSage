@@ -174,6 +174,25 @@ account), or USSD (`*737*…#`) → live receipt & period stamping. Billing scre
 toggling, expiry/days-left, receipts ledger, JSON backup/restore, and downgrade — **records are never
 deleted** when a plan lapses; premium surfaces simply re-lock.
 
+## 6b. Prototype distribution & access control
+
+`taxsage-prototype.zip` packages the production `dist/` + zero-dependency `server.js` +
+`START-*` scripts + customer/admin guides. The build uses **relative asset paths** (`base: './'`)
+so the bundle runs from any folder, static host or sub-path.
+
+**Access layer** (`src/lib/access.ts`): the app boots into an **access gate** unless
+(a) the visitor holds a valid session code, or (b) an admin is signed in. Admins set a device
+passcode (SHA-256, WebCrypto) and mint codes shaped `TXS-XXXX-XXXX` from an unambiguous
+32-symbol alphabet. Each code stores: label, grant (`trial` | `monthly` | `quarterly` | `yearly`),
+expiry, activation cap, activation stamps, and a revoked flag. Activation increments usage and
+bestows the grant directly onto the subscription object — no payment step. Session validity is
+**re-checked against the registry on every launch**; revoked/expired codes boot the user back to
+the gate (exhausted codes remain valid for devices already holding that exact session).
+
+> **Production note:** registry validation is client-side per distributed snapshot — adequate for
+> controlled test runs. For centrally-enforced revocation across hosted copies, replace
+> `checkCode()`'s lookup with a fetch to a tiny codes API and short-lived signed tokens.
+
 ## 7. Performance & engineering standards
 
 - **Route-level code splitting** (`React.lazy` + `Suspense`): initial shell ~66 KB gzip; every page is

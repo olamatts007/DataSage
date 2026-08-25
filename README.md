@@ -56,6 +56,26 @@ receipts ledger, auto-renew management, JSON backup/restore, and graceful expiry
 deleted. Premium unlocks return schedules, print/PDF & CSV exports, unlimited records/employees,
 the old-vs-new reform comparison, compliance scoring and threshold alerts.
 
+## Distributable prototype (customer test runs)
+
+The repo ships an **admin-controlled access layer** for handing the app to test customers:
+
+- Customers land on an **access gate** — a generated code in the format `TXS-XXXX-XXXX` is
+  required to open the app; each code carries a **plan grant** (14-day trial or Premium period),
+  an **expiry** and an **activation cap**; codes can be **revoked** at any time.
+- **Admin console** at `#/admin` — create a device passcode once, then generate/label/export/
+  revoke codes and watch activations. "Open app as admin" previews the product without a code.
+- `npm run build` produces a fully **relative-pathed `dist/`**; `prototype-assets/` adds a
+  zero-dependency `server.js`, `START-WINDOWS.bat` / `START-MAC-LINUX.sh`, and customer & admin
+  guides. Zip them together → **`taxsage-prototype.zip` (~120 KB)** — ready to hand out or host
+  on any static site. See `prototype-assets/ADMIN-GUIDE.md`.
+
+```bash
+# repackage after any change
+npm run build && zip -r taxsage-prototype.zip \
+  --filesync prototype-assets dist  # or use /tmp staging as in git history
+```
+
 ## Performance
 
 Route-level code splitting (initial JS ~66 KB gzip; each screen ~2–5 KB), memoized tax/entitlement
