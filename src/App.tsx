@@ -3,7 +3,7 @@ import { StoreProvider, useStore } from './state/store'
 import { Layout, useHashRoute } from './components/Layout'
 import { ErrorBoundary, RouteSkeleton } from './components/chrome'
 import AccessGate from './components/AccessGate'
-import { checkCode, isAdminAuthed, readAccessSession, writeAccessSession } from './lib/access'
+import { checkCode, fetchProvisionedCodes, isAdminAuthed, readAccessSession, writeAccessSession } from './lib/access'
 
 // route-level code splitting — the initial chunk stays under ~90KB raw,
 // each screen loads on first visit and is cached afterwards.
@@ -70,10 +70,20 @@ function sessionValid(stateCodes: Parameters<typeof checkCode>[0]): string | nul
 }
 
 function Shell() {
-  const { state } = useStore()
+  const { state, dispatch } = useStore()
   const [route] = useHashRoute()
   const [grantedCode, setGrantedCode] = useState<string | null>(() => sessionValid(state.accessCodes))
   const isAdmin = route.startsWith('#/admin') || isAdminAuthed()
+
+  // merge codes shipped with the deployment (hosted test URLs) into the local registry
+  useEffect(() => {
+    let alive = true
+    fetchProvisionedCodes().then((codes) => {
+      if (alive && codes.length) dispatch({ type: 'seedAccessCodes', codes })
+    })
+    return () => { alive = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const gateOpen = !isAdmin && !grantedCode
   return (

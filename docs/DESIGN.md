@@ -189,9 +189,20 @@ bestows the grant directly onto the subscription object — no payment step. Ses
 **re-checked against the registry on every launch**; revoked/expired codes boot the user back to
 the gate (exhausted codes remain valid for devices already holding that exact session).
 
-> **Production note:** registry validation is client-side per distributed snapshot — adequate for
-> controlled test runs. For centrally-enforced revocation across hosted copies, replace
-> `checkCode()`'s lookup with a fetch to a tiny codes API and short-lived signed tokens.
+**Provisioning for hosted URLs:** code registries are per-browser (localStorage), so codes minted
+in the admin's browser would never exist in a customer's browser. Deployments therefore ship a
+**provisioning bundle** `access-codes.json` at the site root (exported from the Admin console,
+placed in `public/`, idempotently merged into the local registry on boot — local revocations and
+activation history win on conflict). Shipping demo codes is supported out of the box
+(`TXS-DEMO-TR24`, `TXS-DEMO-PRE26`). Hosted revocation = revoke locally → re-export → redeploy.
+
+**GitHub Pages test URL:** `npm run deploy:test` builds with `base: './'`, refreshes `docs/`
+(.nojekyll) on the session branch and pushes; the owner's one-time Settings toggle
+(branch → `/docs`) serves it at `https://olamatts007.github.io/DataSage/`.
+
+> **Production note:** like any product key in a static bundle, provisioned codes are discoverable
+> via DevTools — fine for disposable test runs. For launch-grade, centrally-enforced access,
+> move `checkCode()` behind a tiny codes API issuing short-lived signed tokens.
 
 ## 7. Performance & engineering standards
 

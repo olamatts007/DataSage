@@ -79,6 +79,23 @@ export default function Admin() {
       'application/json'
     )
 
+  /** Provisioning bundle — the exact file to ship as public/access-codes.json in the build,
+      so customers opening a HOSTED URL get the registry (their browser ≠ your localStorage). */
+  const exportProvisionFile = () =>
+    download(
+      'access-codes.json',
+      JSON.stringify(
+        {
+          note: 'TaxSage provisioning bundle. Place this file at public/access-codes.json, rebuild (npm run build) and redeploy. Local device state still overrides for revocations made after shipping.',
+          generatedAt: new Date().toISOString(),
+          codes: state.accessCodes,
+        },
+        null,
+        2
+      ),
+      'application/json'
+    )
+
   const stats = useMemo(() => {
     const now = Date.now()
     const live = state.accessCodes.filter(
@@ -214,6 +231,24 @@ export default function Admin() {
             <button className="btn btn-ghost btn-sm mt8" onClick={exportCodes} disabled={!state.accessCodes.length}>
               <Icon name="download" size={13} /> Export codes (.json)
             </button>
+          </div>
+
+          <div className="card card-pad" style={{ borderColor: '#ecd996', background: '#fffdf4' }}>
+            <h3 className="card-title">⚠ Hosted URL? Ship the codes too</h3>
+            <p className="small" style={{ margin: '4px 0 8px' }}>
+              Each browser keeps its own registry. Customers opening your <b>hosted test URL</b> start with an
+              <b> empty</b> registry — generate codes here, then embed them in the deployment:
+            </p>
+            <ol className="small" style={{ margin: 0, paddingLeft: 17, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <li>Generate the codes on the left.</li>
+              <li><b>Download the provisioning bundle</b> below.</li>
+              <li>Save it as <span className="mono">public/access-codes.json</span> in the repo.</li>
+              <li>Rebuild & redeploy (<span className="mono">npm run deploy:test</span>).</li>
+            </ol>
+            <button className="btn btn-gold btn-sm mt8" onClick={exportProvisionFile} disabled={!state.accessCodes.length}>
+              <Icon name="download" size={13} /> Download provisioning bundle (access-codes.json)
+            </button>
+            <div className="hint mt8">Revoking after shipment = revoke here, re-download, redeploy. Local test copies manage themselves.</div>
           </div>
         </div>
 

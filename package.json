@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 5173"
+    "preview": "vite preview --host 0.0.0.0 --port 5173",
+    "deploy:test": "bash scripts/deploy-test-url.sh",
+    "package:prototype": "npm run build && rm -rf /tmp/txs-proto && mkdir -p /tmp/txs-proto/taxsage-prototype && cp -r dist /tmp/txs-proto/taxsage-prototype/ && cp prototype-assets/* /tmp/txs-proto/taxsage-prototype/ && chmod +x /tmp/txs-proto/taxsage-prototype/START-MAC-LINUX.sh /tmp/txs-proto/taxsage-prototype/server.js && cd /tmp/txs-proto && zip -r $OLDPWD/taxsage-prototype.zip taxsage-prototype && echo '✓ taxsage-prototype.zip rebuilt'"
   },
   "dependencies": {
     "react": "^18.3.1",

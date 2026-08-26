@@ -24,6 +24,9 @@ The app opens on an **access gate**. Enter the code your administrator gave you
 (format `TXS-XXXX-XXXX`). Codes are single- or limited-use, may expire, and automatically grant
 your test plan (trial or Premium). No payment is involved in this test run.
 
+> **Demo codes (if the admin kept them):** `TXS-DEMO-TR24` unlocks a 14-day trial and
+> `TXS-DEMO-PRE26` unlocks full Premium for evaluation.
+
 ## 3 · What to evaluate
 
 1. **Business Profile** — set your structure, turnover and fixed assets; watch your **NTA 2025

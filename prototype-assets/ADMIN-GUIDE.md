@@ -34,9 +34,24 @@ Two supported channels:
 | Channel | Steps |
 |---|---|
 | **Zip handout** | Send `taxsage-prototype.zip` → customer unzips → runs `START-*` script → opens `localhost:4173` |
-| **Online hosting** | Upload `dist/` to any static host (Netlify/Vercel/GitHub Pages/S3) → share the URL |
+| **Hosted URL (recommended)** | Enable GitHub Pages (Settings → Pages → branch, folder `/docs`) or upload `dist/` to any static host → share the URL |
 
-In both cases customers still need an access code from you.
+### Crucial: codes must travel with the build
+
+Code registries are per-browser. After minting codes in this console:
+
+1. Click **"Download provisioning bundle (access-codes.json)"**.
+2. Save it as `public/access-codes.json` in the repo.
+3. Rebuild & redeploy (`npm run deploy:test`, or re-zip via `npm run package:prototype`).
+
+The shipped file ships the registry with the app, so customers' browsers recognise their codes.
+Revocation on hosted URLs: revoke here → re-download the bundle → redeploy. (For centrally-enforced,
+instant revocation you'd add the small server-side lookup noted in docs/DESIGN.md §6b.)
+
+This repo ships demo codes `TXS-DEMO-TR24` (trial) and `TXS-DEMO-PRE26` (annual Premium) in
+`public/access-codes.json` so your first evaluator can get in immediately — replace them.
+
+In both channels customers still need an access code from you.
 
 ## Important prototype notes
 

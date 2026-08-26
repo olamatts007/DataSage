@@ -5,7 +5,7 @@ import {
   Entitlement, FREE_SUB, Payment, Period, Subscription, computeEntitlement,
   paymentRef, periodEnd, trialEnd, PLANS,
 } from '../lib/billing'
-import { AccessCode } from '../lib/access'
+import { AccessCode, mergeCodes } from '../lib/access'
 
 const KEY = 'taxsage.v1'
 
@@ -35,6 +35,7 @@ type Action =
   | { type: 'addAccessCode'; code: AccessCode }
   | { type: 'revokeAccessCode'; id: string }
   | { type: 'activateAccessCode'; id: string }
+  | { type: 'seedAccessCodes'; codes: AccessCode[] }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -94,6 +95,8 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       return { ...s, subscription: { ...FREE_SUB, trialUsed: s.subscription.trialUsed, trialEnd: s.subscription.trialEnd } }
     case 'addAccessCode':
       return { ...s, accessCodes: [...s.accessCodes, a.code] }
+    case 'seedAccessCodes':
+      return { ...s, accessCodes: mergeCodes(s.accessCodes, a.codes) }
     case 'revokeAccessCode':
       return { ...s, accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, revoked: true } : c)) }
     case 'activateAccessCode': {

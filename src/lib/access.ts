@@ -113,3 +113,47 @@ export function getAdminPassHash(): string | null {
 export function setAdminPassHash(hash: string): void {
   localStorage.setItem(ADMIN_KEY, hash)
 }
+
+// ── deployment provisioning ───────────────────────────────────────────────────
+//
+// For hosted test URLs (GitHub Pages, Netlify, the prototype zip's server),
+// customers run the app in THEIR browser — the admin's localStorage registry
+// never reaches them. The build therefore ships `access-codes.json` at the site
+// root (product-key style): the app merges it into the local registry on boot.
+// Local runtime state (revocations, activations) still wins on that device.
+
+export const PROVISION_PATH = './access-codes.json'
+
+export interface ProvisionedFile {
+  generatedAt: string
+  codes: AccessCode[]
+}
+
+export async function fetchProvisionedCodes(): Promise<AccessCode[]> {
+  try {
+    const res = await fetch(PROVISION_PATH, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = (await res.json()) as ProvisionedFile
+    return Array.isArray(data?.codes) ? data.codes : []
+  } catch {
+    return [] // no provisioning file (local/dev builds) — fine
+  }
+}
+
+/** Merge ship-file codes into the local registry (local entries win on conflict). */
+export function mergeCodes(local: AccessCode[], incoming: AccessCode[]): AccessCode[] {
+  if (!incoming.length) return local
+  const byCode = new Map(local.map((c) => [c.code, c]))
+  for (const inc of incoming) {
+    const ex = byCode.get(inc.code)
+    if (!ex) byCode.set(inc.code, inc)
+    else {
+      byCode.set(inc.code, {
+        ...inc,
+        ...ex, // local fields (revoked, activations) take precedence
+        activations: ex.activations.length >= inc.activations.length ? ex.activations : inc.activations,
+      })
+    }
+  }
+  return [...byCode.values()]
+}

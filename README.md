@@ -56,6 +56,20 @@ receipts ledger, auto-renew management, JSON backup/restore, and graceful expiry
 deleted. Premium unlocks return schedules, print/PDF & CSV exports, unlimited records/employees,
 the old-vs-new reform comparison, compliance scoring and threshold alerts.
 
+## Public test URL (pre-launch customer testing)
+
+A durable URL for customers to evaluate the app **before public launch**:
+
+- **One-time enable (repo owner, ~60 seconds):** Settings → **Pages** → *Build and deployment* →
+  **Deploy from a branch** → branch `arena/01a031e8-datasage`, folder **`/docs`** → Save.
+  The site goes live at **https://olamatts007.github.io/DataSage/** in 1–2 minutes.
+- **Redeploy any time:** `npm run deploy:test` (builds, refreshes `docs/`, pushes).
+- **Customers need an access code** — the page shows the gate first. Codes minted in **#/admin**
+  live in *your* browser, so ship them with the site: **Admin → "Download provisioning bundle"** →
+  save as `public/access-codes.json` → `npm run deploy:test`. A demo bundle is included with two
+  evaluation codes (`TXS-DEMO-TR24` trial · `TXS-DEMO-PRE26` annual) — replace them for real runs.
+  To revoke on a hosted URL: revoke locally, re-export, redeploy.
+
 ## Distributable prototype (customer test runs)
 
 The repo ships an **admin-controlled access layer** for handing the app to test customers:

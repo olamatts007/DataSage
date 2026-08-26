@@ -1,0 +1,28 @@
+{
+  "note": "TaxSage provisioning bundle — shipped with the build so hosted test URLs have a code registry. Replace these DEMO codes with bundles exported from the Admin console (#/admin), then redeploy.",
+  "generatedAt": "2026-08-25T00:00:00.000Z",
+  "codes": [
+    {
+      "id": "demo-trial",
+      "code": "TXS-DEMO-TR24",
+      "note": "DEMO — trial grant for first-time testers (replace for real test runs)",
+      "createdAt": "2026-08-25T00:00:00.000Z",
+      "expiresAt": "2026-12-31T23:59:59.000Z",
+      "maxActivations": 0,
+      "grant": "trial",
+      "revoked": false,
+      "activations": []
+    },
+    {
+      "id": "demo-yearly",
+      "code": "TXS-DEMO-PRE26",
+      "note": "DEMO — full Premium grant for evaluation (replace for real test runs)",
+      "createdAt": "2026-08-25T00:00:00.000Z",
+      "expiresAt": "2026-12-31T23:59:59.000Z",
+      "maxActivations": 0,
+      "grant": "yearly",
+      "revoked": false,
+      "activations": []
+    }
+  ]
+}
