@@ -1,0 +1,2800 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "sourcekettle/plan/taxonomy_builder.py",
+  "taxonomies": {
+    "A_category_tree": [
+      {
+        "code": "S1",
+        "name": "Raw Materials - Bulk & Commodity Chemicals",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "High volume, low margin, spec-interchangeable. Tanker / ISO tank / bag / IBC. Buy on landed cost + reliability.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S10",
+        "name": "Feedstocks & Petrochemical Base",
+        "kind": "segment",
+        "parent": "S1",
+        "applications": [
+          "B07",
+          "B09"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Solvent naphtha, methanol, toluene, xylene, acetone, MEG/DEG, glycerine, phenol, formalin, EO/PO derivatives, fatty acids, fatty alcohols. Mostly DG Class 3.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S11",
+        "name": "Acids, Alkalis & Inorganics",
+        "kind": "segment",
+        "parent": "S1",
+        "applications": [
+          "B01",
+          "B06",
+          "B08",
+          "B09",
+          "B14",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S11.1",
+        "name": "Mineral Acids",
+        "kind": "subsegment",
+        "parent": "S11",
+        "applications": [
+          "B01",
+          "B08",
+          "B09",
+          "B14",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Hydrochloric 33%, sulphuric 98%, nitric 68%, phosphoric 85% tech/food. DG Class 8, storage class SC-1.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S11.2",
+        "name": "Alkalis",
+        "kind": "subsegment",
+        "parent": "S11",
+        "applications": [
+          "B01",
+          "B02",
+          "B06",
+          "B09",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Caustic soda flakes 98% / lye 47-50%, potassium hydroxide, soda ash light & dense. DG Class 8, storage class SC-2.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S11.3",
+        "name": "Salts & Inorganic Compounds",
+        "kind": "subsegment",
+        "parent": "S11",
+        "applications": [
+          "B01",
+          "B03",
+          "B06",
+          "B09",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Sodium sulphate, bicarbonate, metabisulphite, hypochlorite 12.5%, alum, PAC, ferric chloride, lime, zinc oxide, titanium dioxide.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S11.4",
+        "name": "Industrial Gases",
+        "kind": "subsegment",
+        "parent": "S11",
+        "applications": [
+          "B07",
+          "B09",
+          "B13",
+          "B14",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Nitrogen, oxygen, argon, CO2, hydrogen, LPG, acetylene, calibration mixes. Cylinder / dewar / bulk. DG Class 2, storage SC-5.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12",
+        "name": "Solvents",
+        "kind": "segment",
+        "parent": "S1",
+        "applications": [
+          "B02",
+          "B03",
+          "B05",
+          "B09",
+          "B13",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Best entry category: high repeat purchase, clear specs, strong price opacity.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12.1",
+        "name": "Hydrocarbon & Aliphatic Solvents",
+        "kind": "subsegment",
+        "parent": "S12",
+        "applications": [
+          "B03",
+          "B05",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Hexane, heptane, kerosene, white spirit, D40/D60/D80, isoparaffins. DG Class 3, SC-3.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12.2",
+        "name": "Oxygenated Solvents",
+        "kind": "subsegment",
+        "parent": "S12",
+        "applications": [
+          "B02",
+          "B03",
+          "B09",
+          "B11",
+          "B12"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements"
+        ],
+        "note": "Methanol, ethanol (denatured/absolute/ENA), IPA, butanol, ethyl & butyl acetate, MEK, MIBK, acetone. DG Class 3.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12.3",
+        "name": "Glycol Ethers & High Boilers",
+        "kind": "subsegment",
+        "parent": "S12",
+        "applications": [
+          "B03",
+          "B13"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "2-ethylhexanol, DPM, TPM, glycol ether families. Lower volatility, some combustible rather than flammable.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12.4",
+        "name": "Halogenated Solvents",
+        "kind": "subsegment",
+        "parent": "S12",
+        "applications": [
+          "B13",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "regulatory_restrictions"
+        ],
+        "note": "Methylene chloride, chloroform, TCE. Several are restricted/authorisation-gated - catalogue must carry a restricted flag and buyer acknowledgement.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S12.5",
+        "name": "Green & Bio-based Solvents",
+        "kind": "subsegment",
+        "parent": "S12",
+        "applications": [
+          "B02",
+          "B03",
+          "B10",
+          "B11"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "d-limonene, ethyl lactate, methyl soyate, glycerol formal, dibasic esters. Fastest-growing solvent sub-segment on ESG demand.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13",
+        "name": "Polymers, Resins & Elastomers",
+        "kind": "segment",
+        "parent": "S1",
+        "applications": [
+          "B04",
+          "B06",
+          "B14",
+          "B15"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package"
+        ],
+        "note": "",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.1",
+        "name": "Commodity Thermoplastics",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B04",
+          "B06"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package"
+        ],
+        "note": "HDPE/LDPE/LLDPE, PP homo & copolymer, PS, EPS, ABS, PET. Sold by grade + MFI.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.2",
+        "name": "Engineering Plastics",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B04",
+          "B13",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package"
+        ],
+        "note": "PA6/PA66, PC, POM, PBT, PMMA, PPS, PEEK, PVDF, PTFE. Higher margin, spec-critical.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.3",
+        "name": "PVC & Plasticisers",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B04",
+          "B15"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package"
+        ],
+        "note": "Suspension PVC, CPVC, DOP/DOTP/DINP/ATBC. Some plasticisers phasing out - track restriction lists.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.4",
+        "name": "Thermoset Resins",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B03",
+          "B04",
+          "B15"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package",
+          "pot_life_minutes"
+        ],
+        "note": "Epoxy resin + hardeners, unsaturated polyester, phenolic, PU systems (MDI/TDI/polyol). Isocyanates are hazardous - SC-6 handling.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.5",
+        "name": "Elastomers & Rubber",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B04",
+          "B14"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Natural rubber, SBR, NBR, EPDM, silicone gum, reclaimed rubber.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S13.6",
+        "name": "Recycled & Bio-based Polymers",
+        "kind": "subsegment",
+        "parent": "S13",
+        "applications": [
+          "B04",
+          "B06"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "melt_flow_index",
+          "additive_package",
+          "recycled_content_pct"
+        ],
+        "note": "rPET, rPP, regrind, PLA, PHA, bio-PE. Growing on ESG mandates; requires traceability of recycled content.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S14",
+        "name": "Bulk Additives, Fillers & Pigments",
+        "kind": "segment",
+        "parent": "S1",
+        "applications": [
+          "B03",
+          "B04",
+          "B06",
+          "B15"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "GCC/PCC, talc, kaolin, fumed & precipitated silica, barium sulphate, mica, wollastonite, carbon black, TiO2, iron oxides, organic & inorganic pigments, masterbatches.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S1",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S2",
+        "name": "Raw Materials - Specialty & Formulated Chemicals",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "Lower volume, higher margin, function-driven, harder to substitute. Qualification, not just price.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S20",
+        "name": "Surfactants & Detergent Bases",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B02",
+          "B11"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "LABSA 90%, SLES 70% (2EO/3EO), SLS, AES, CAPB, AEO, APG, alcohol ethoxylates, sulfosuccinates, amine oxides, quats (BTC/DDAC), gemini & silicone surfactants.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S21",
+        "name": "Specialty Additives & Performance Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B03",
+          "B04",
+          "B13"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S21.1",
+        "name": "Polymer Additives",
+        "kind": "subsegment",
+        "parent": "S21",
+        "applications": [
+          "B04"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Antioxidants, UV stabilisers, HALS, heat stabilisers, flame retardants (APP/ATH/brominated/phosphorus), nucleating agents, slip & antiblock.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S21.2",
+        "name": "Processing Aids",
+        "kind": "subsegment",
+        "parent": "S21",
+        "applications": [
+          "B03",
+          "B04",
+          "B11"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Compatibilisers, coupling agents, defoamers, dispersants, rheology modifiers, biocides, preservatives (MIT/CMIT, phenoxyethanol), antistats.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S21.3",
+        "name": "Functional Fillers & Nanomaterials",
+        "kind": "subsegment",
+        "parent": "S21",
+        "applications": [
+          "B04",
+          "B13"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "particle_size_nm"
+        ],
+        "note": "Nanosilica, nanoclay, CNT, graphene. Low volume, high value, sample-heavy, nano-specific safety data required.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S22",
+        "name": "Coatings, Ink & Adhesive Raw Materials",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B03"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Alkyds, acrylics, PU dispersions, nitrocellulose, rosins, TiO2, extenders, coalescents, thickeners (HEC/ASE/HEUR), pigments & dyes, photoinitiators, UV monomers & oligomers.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S23",
+        "name": "Water Treatment & Process Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B01",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "RECOMMENDED FIRST CATEGORY. Coagulants (alum/PAC/ferric), flocculants (anionic/cationic/nonionic PAM), antiscalants, corrosion inhibitors, oxygen scavengers, biocides, pH adjusters, IX resins, activated carbon, membrane cleaners, chelants, boiler & cooling tower treatment.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S24",
+        "name": "Industrial & Institutional Cleaning",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B01",
+          "B10",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Alkaline cleaners, acid descalers, solvent degreasers, CIP detergents & sanitisers, foam control, laundry, handwash & sanitisers, floor care, enzymatic cleaners.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S25",
+        "name": "Textile, Leather, Paper & Pulp Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B05",
+          "B06"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Sizing agents, wet-strength resins, retention aids, optical brighteners, dye-fixing agents, tanning agents (incl. chrome-free), fatliquors, defoamers, bleaching stabilisers, softener bases.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S26",
+        "name": "Food, Feed & Personal Care Ingredients",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B10",
+          "B11",
+          "B17"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "allergen_declaration",
+          "grade_certificate"
+        ],
+        "note": "GRADE-GATED. Acidulants, preservatives, sweeteners, hydrocolloids, emulsifiers, vitamins, amino acids, flavours, colours, cosmetic actives, emollients, waxes, silicones. Requires food/pharma/cosmetic grade cert + allergen declaration + batch traceability.",
+        "grade_gated": true,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S27",
+        "name": "Oils, Lubricants & Metalworking Fluids",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B14",
+          "B16",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "viscosity_grade"
+        ],
+        "note": "Base oils (Group I-III, PAO, esters), greases, hydraulic & gear oils, compressor & transformer oils, metalworking fluids (soluble/semi-synthetic/neat), quenching oils, rust preventives, heat transfer fluids.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S28",
+        "name": "Adhesives & Sealants (Finished)",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B04",
+          "B14",
+          "B15",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "cure_time_minutes"
+        ],
+        "note": "Epoxies, PU, silicones, cyanoacrylates, hot-melts & EVA, PVAc, MS polymers, anaerobics, tapes.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S29",
+        "name": "Construction & Infrastructure Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B15"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation"
+        ],
+        "note": "Concrete admixtures (PCE, lignosulphonate, naphthalene), waterproofing, grouts, repair mortars, tile adhesives, curing compounds, protective coatings, geochemicals.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S30",
+        "name": "Agrochemicals & Plant Nutrition",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B17"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "licence_required",
+          "registration_number"
+        ],
+        "note": "LICENCE-GATED. NPK & water-soluble fertilisers, micronutrients, insecticides/fungicides/herbicides, PGRs, biostimulants, soil conditioners. Verify seller AND buyer licences before enabling transactions.",
+        "grade_gated": false,
+        "licence_gated": true,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S31",
+        "name": "Laboratory & Reagent Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B09",
+          "B12",
+          "B13"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "cert_of_analysis_batch"
+        ],
+        "note": "AR/LR grades, analytical standards, reference materials, indicators, buffer salts, chromatography media, HPLC/GC-grade solvents, titration reagents.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S32",
+        "name": "Pharma & Fine Chemicals",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B12"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "gmp_documentation",
+          "dmf_cep_reference",
+          "licence_required"
+        ],
+        "note": "HIGHEST COMPLIANCE BURDEN. APIs, pharma intermediates, excipients (MCC, lactose, starch, Mg stearate), bio-buffers. GMP docs, CEP/DMF, country licences. Enter only with a regulatory partner.",
+        "grade_gated": true,
+        "licence_gated": true,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S33",
+        "name": "Catalysts, Enzymes & Biotech Inputs",
+        "kind": "segment",
+        "parent": "S2",
+        "applications": [
+          "B09",
+          "B10",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "activity_units"
+        ],
+        "note": "Precious-metal & base-metal catalysts, zeolites, supported catalysts, industrial enzymes (amylase/protease/lipase/cellulase), fermentation media & nutrients, starter cultures.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S2",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S3",
+        "name": "Machines & Process Equipment",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "Capex. Long cycle, high value. Sell as brokerage + escrow + third-party inspection, not marketplace inventory.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S34",
+        "name": "Reaction, Mixing & Blending Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B02",
+          "B03",
+          "B09",
+          "B11",
+          "B12"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "SS316 / glass-lined / jacketed reactors, agitated vessels, high-shear mixers, planetary mixers, homogenisers, ribbon & conical blenders, dissolvers, bead/ball/hammer mills, crystallisers, evaporators, spray dryers.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S35",
+        "name": "Separation, Filtration & Drying Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B01",
+          "B09",
+          "B10",
+          "B12"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "Distillation columns & internals, wiped-film evaporators, filter press / Nutsche / candle filters, decanter & basket & disc-stack centrifuges, hydrocyclones, extraction units, tray/FBD/vacuum/flash dryers, UF/NF/RO skids, dust collectors.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S36",
+        "name": "Heat Transfer & Thermal Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B09",
+          "B10",
+          "B16"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "Shell & tube / plate heat exchangers, cooling towers, chillers, thermic fluid heaters, industrial ovens & furnaces, steam boilers, heat recovery, jacketed piping & tracing.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S37",
+        "name": "Fluid Handling, Transfer & Storage",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B01",
+          "B02",
+          "B07",
+          "B09",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered",
+          "wetted_materials",
+          "atex_rating"
+        ],
+        "note": "Centrifugal, gear, AODD diaphragm, lobe, peristaltic, screw, magnetic-drive sealless pumps (correct for corrosive/flammable duty); ball/gate/butterfly/diaphragm/pinch/safety-relief valves; hose & couplings; IBCs, drums, silos, agitators, level & containment.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S38",
+        "name": "Instrumentation, Control & Automation",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B01",
+          "B09",
+          "B13",
+          "B16",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered",
+          "atex_rating",
+          "calibration_certificate"
+        ],
+        "note": "Flow (magnetic/coriolis/ultrasonic), level (radar/ultrasonic/float), pressure & temperature transmitters, analytical (pH/ORP/conductivity/turbidity/DO), control valves & actuators, PLC/DCS, HMI/SCADA, VFDs, load cells, gas detection & safety interlocks.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S39",
+        "name": "Filling, Packaging & Labelling Lines",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B02",
+          "B10",
+          "B11",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "Drum & IBC filling stations, bottling & capping, sachet FFS, carton sealers, shrink-wrap, palletisers, labellers, metal detectors, checkweighers, coders & printers.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S40",
+        "name": "Material Handling Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "Forklifts (electric/diesel), stackers, pallet trucks, conveyors, hoists & EOT cranes, industrial vacuum, AGVs.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S41",
+        "name": "Utilities, Energy & Effluent Treatment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B01",
+          "B16",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "Air compressors & dryers, N2/O2 generators, RO & DM plants, ETP/STP equipment (clarifiers, DAF, MBBR media), sludge dewatering, incinerators, solar thermal, UPS & generators.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S42",
+        "name": "Laboratory & QC Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B09",
+          "B10",
+          "B12",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered",
+          "calibration_certificate"
+        ],
+        "note": "Fume hoods, hotplates & stirrers, ovens & muffle furnaces, viscometers, spectrophotometers, HPLC/GC, titrators, particle size analysers, moisture analysers, balances, colour measurement.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S43",
+        "name": "Line-Specific Process Machinery",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B02",
+          "B03",
+          "B04",
+          "B10",
+          "B11"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered"
+        ],
+        "note": "The vertical bundles - detergent & liquid washing lines, paint dispersion lines, food processing lines, cosmetic cream/lotion lines, plastic compounding & extrusion, water bottling, blending & packaging skids. This is where 'we sell the line' becomes literal.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S44",
+        "name": "Used, Refurbished & Rental Equipment",
+        "kind": "segment",
+        "parent": "S3",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "capacity_or_rating",
+          "material_of_construction",
+          "certifications",
+          "condition",
+          "lead_time_weeks",
+          "power_supply",
+          "warranty_months",
+          "documentation",
+          "installation_offered",
+          "inspection_report",
+          "year_of_manufacture"
+        ],
+        "note": "Second-hand reactors & centrifuges, refurbished instruments, rental dosing skids & temporary utilities. High margin, underserved, natural fit for escrow + inspection.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": true,
+        "pillar": "S3",
+        "transaction_model": "brokerage_escrow"
+      },
+      {
+        "code": "S4",
+        "name": "Consumables, MRO & Packaging",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "Low unit value, highest order frequency, creates daily engagement. Availability beats price here.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S45",
+        "name": "Packaging Materials",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B02",
+          "B03",
+          "B10",
+          "B11",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation",
+          "un_rating_for_dg"
+        ],
+        "note": "HDPE & steel drums (200/210/220 L), IBCs, jerry cans 5-30 L, PP/PE bags & FIBCs, liners, drum bungs/caps/rings/seals, pails & tubs, bottles & closures, sachet film, shrink & stretch film, corrugated, wooden & plastic pallets, strapping & tapes. UN-rated packaging is mandatory for DG fills.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S46",
+        "name": "PPE & Safety Equipment",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation",
+          "protection_standard"
+        ],
+        "note": "Nitrile/latex/neoprene/butyl & chemical gauntlets, coveralls (Type 3/4/5/6), respirators (half/full mask, PAPR, cartridges), safety shoes & boots, face shields, goggles, chemical aprons, spill kits, eyewash & safety showers, first aid, LOTO, portable gas detectors.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S47",
+        "name": "Filtration & Separation Consumables",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B01",
+          "B03",
+          "B09",
+          "B10"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation",
+          "micron_rating"
+        ],
+        "note": "Filter bags (PP/PE/PTFE, 1-800 um), cartridge filters, filter cloths & plates, RO/UF membranes & spares, activated carbon, filter aid (diatomite, perlite), sieve & screen meshes.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S48",
+        "name": "Gaskets, Seals & Hose",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B09",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation",
+          "chemical_compatibility"
+        ],
+        "note": "Spiral-wound & ring-joint gaskets, EPDM/NBR/Viton/PTFE seals, O-ring kits, hose assemblies, quick couplings. Chemical compatibility chart is the killer merchandising feature.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S49",
+        "name": "Electrical & Instrumentation Consumables",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation",
+          "atex_rating"
+        ],
+        "note": "Contactors, relays, MCB/MCCB, cables & glands, cable trays, sensors & transmitters, calibrators, indicator lamps.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S50",
+        "name": "Maintenance & Workshop Supplies",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation"
+        ],
+        "note": "Industrial adhesives, threadlockers, lubricants & greases, aerosols, cutting & grinding discs, drill bits & taps, abrasives, welding electrodes & wire, paints, cleaners & degreasers, janitorial.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S51",
+        "name": "QC & Laboratory Consumables",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B09",
+          "B10",
+          "B12"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation"
+        ],
+        "note": "Glassware, volumetric flasks & pipettes, syringe filters & membranes, reagents, standards, sample containers, lab gloves, wipes, chromatography consumables.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S52",
+        "name": "Packing & Despatch Consumables",
+        "kind": "segment",
+        "parent": "S4",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "size_spec",
+          "material_of_construction",
+          "pack_qty",
+          "uom",
+          "hs_code",
+          "certifications",
+          "documentation"
+        ],
+        "note": "Labels & thermal ribbons, coding ink, void fill, bubble wrap, edge protectors, desiccants, VCI anti-corrosion packaging.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S4",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S5",
+        "name": "Services",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "The services layer is what stops disintermediation. High margin and binds the transaction to the platform.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S55",
+        "name": "Sourcing & Brokerage",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation"
+        ],
+        "note": "RFQ management, supplier qualification, factory audits, cost benchmarking, reverse auctions.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S56",
+        "name": "Logistics & Dangerous Goods Transport",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation",
+          "dg_transport_licence"
+        ],
+        "note": "DG-certified trucking, tank cleaning, hazmat warehousing, ISO tank leasing, freight forwarding, customs brokerage, cargo insurance.",
+        "grade_gated": false,
+        "licence_gated": true,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S57",
+        "name": "Testing, Inspection & QC",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation",
+          "accreditation_scope"
+        ],
+        "note": "Third-party lab analysis (SGS / Intertek / Bureau Veritas class), pre-shipment inspection, batch retention sampling, CoA verification.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S58",
+        "name": "Regulatory & Compliance",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation"
+        ],
+        "note": "SDS authoring & translation, REACH only-representative, TSCA statements, product registration, GHS labelling & classification, HS classification.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S59",
+        "name": "Engineering, Installation & After-Sales",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation"
+        ],
+        "note": "Commissioning, AMC/CMC contracts, spares management, operator training, equipment validation.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S60",
+        "name": "Trade Finance & Insurance",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation",
+          "regulated_entity_partner"
+        ],
+        "note": "Supplier credit, invoice discounting, escrow & milestone payment, LC management, product liability cover. Always through a licensed partner.",
+        "grade_gated": false,
+        "licence_gated": true,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S61",
+        "name": "Waste, Recovery & Circularity",
+        "kind": "segment",
+        "parent": "S5",
+        "applications": [
+          "B01",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "scope_of_work",
+          "sla_hours",
+          "service_area",
+          "licences",
+          "documentation",
+          "waste_handling_licence"
+        ],
+        "note": "Spent-solvent recovery, effluent treatment services, packaging take-back, chemical destruction & disposal.",
+        "grade_gated": false,
+        "licence_gated": true,
+        "is_capex": false,
+        "pillar": "S5",
+        "transaction_model": "managed_service"
+      },
+      {
+        "code": "S6",
+        "name": "Overstock, Off-Spec & Secondary Materials",
+        "kind": "pillar",
+        "parent": null,
+        "applications": [],
+        "mandatory_attributes": [],
+        "note": "Underserved supply-side wedge. Every item must carry a deviation disclosure and cannot be recommended for grade-gated end uses (S26, S30, S32).",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S6",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S65",
+        "name": "Surplus & Slow-Moving Stock",
+        "kind": "segment",
+        "parent": "S6",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "shelf_life_remaining_pct",
+          "deviation_disclosure"
+        ],
+        "note": "Original packaging, documented provenance, near-expiry or slow-moving.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S6",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S66",
+        "name": "Off-Spec & Downgraded Material",
+        "kind": "segment",
+        "parent": "S6",
+        "applications": [
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "shelf_life_remaining_pct",
+          "deviation_disclosure"
+        ],
+        "note": "Sold with full CoA deviation disclosure. Platform must block recommendation into grade-gated end uses.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S6",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S67",
+        "name": "Recovered & Reclaimed Solvents & Oils",
+        "kind": "segment",
+        "parent": "S6",
+        "applications": [
+          "B03",
+          "B14",
+          "B18"
+        ],
+        "mandatory_attributes": [
+          "cas_number",
+          "grade",
+          "purity_min_pct",
+          "physical_form",
+          "un_number",
+          "dg_class",
+          "ghs_pictograms",
+          "flash_point_c",
+          "storage_class",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "packing_group",
+          "h_statements",
+          "p_statements",
+          "recovery_source"
+        ],
+        "note": "Re-distilled solvents, re-refined lubricants. Requires distillation report and residual-contaminant profile.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S6",
+        "transaction_model": "marketplace"
+      },
+      {
+        "code": "S68",
+        "name": "Recycled Resins, Regrind & Reclaimed Rubber",
+        "kind": "segment",
+        "parent": "S6",
+        "applications": [
+          "B04",
+          "B06"
+        ],
+        "mandatory_attributes": [
+          "material_grade",
+          "physical_form",
+          "packaging_options",
+          "moq",
+          "uom",
+          "hs_code",
+          "country_of_origin",
+          "documentation",
+          "recycled_content_pct",
+          "contamination_profile"
+        ],
+        "note": "Regrind, pelletised recyclate, reclaimed rubber. MFI and contamination profile mandatory.",
+        "grade_gated": false,
+        "licence_gated": false,
+        "is_capex": false,
+        "pillar": "S6",
+        "transaction_model": "marketplace"
+      }
+    ],
+    "B_application_tree": [
+      {
+        "code": "B01",
+        "name": "Water treatment & municipal"
+      },
+      {
+        "code": "B02",
+        "name": "Detergent, soap & home care"
+      },
+      {
+        "code": "B03",
+        "name": "Paints, coatings & inks"
+      },
+      {
+        "code": "B04",
+        "name": "Plastics, compounding & masterbatch"
+      },
+      {
+        "code": "B05",
+        "name": "Textile, leather & apparel"
+      },
+      {
+        "code": "B06",
+        "name": "Paper, pulp & packaging"
+      },
+      {
+        "code": "B07",
+        "name": "Oil, gas & petrochemical"
+      },
+      {
+        "code": "B08",
+        "name": "Mining & mineral processing"
+      },
+      {
+        "code": "B09",
+        "name": "Chemical processing & fine chemicals"
+      },
+      {
+        "code": "B10",
+        "name": "Food & beverage processing"
+      },
+      {
+        "code": "B11",
+        "name": "Personal care & cosmetics"
+      },
+      {
+        "code": "B12",
+        "name": "Pharmaceutical & nutraceutical"
+      },
+      {
+        "code": "B13",
+        "name": "Electronics & semiconductors"
+      },
+      {
+        "code": "B14",
+        "name": "Automotive & metal finishing"
+      },
+      {
+        "code": "B15",
+        "name": "Construction & infrastructure"
+      },
+      {
+        "code": "B16",
+        "name": "Power generation & utilities"
+      },
+      {
+        "code": "B17",
+        "name": "Agriculture & agri-inputs"
+      },
+      {
+        "code": "B18",
+        "name": "General manufacturing / MRO"
+      }
+    ],
+    "C_attribute_schema": [
+      {
+        "key": "cas_number",
+        "type": "string",
+        "required_for": "S1,S2,S6",
+        "note": "Chemical identity; primary key for spec matching"
+      },
+      {
+        "key": "grade",
+        "type": "enum",
+        "required_for": "S1,S2,S6",
+        "values": [
+          "technical",
+          "industrial",
+          "USP",
+          "BP",
+          "EP",
+          "food",
+          "pharma",
+          "cosmetic",
+          "AR",
+          "LR",
+          "HPLC",
+          "electronic"
+        ]
+      },
+      {
+        "key": "purity_min_pct",
+        "type": "decimal",
+        "required_for": "S1,S2,S6"
+      },
+      {
+        "key": "physical_form",
+        "type": "enum",
+        "required_for": "S1,S2,S3,S4,S6",
+        "values": [
+          "solid",
+          "liquid",
+          "gas",
+          "powder",
+          "granule",
+          "flake",
+          "paste",
+          "emulsion",
+          "equipment"
+        ]
+      },
+      {
+        "key": "un_number",
+        "type": "string",
+        "required_for": "S1,S2,S6",
+        "note": "Must validate against the UN Dangerous Goods list. Never free-typed."
+      },
+      {
+        "key": "dg_class",
+        "type": "enum",
+        "required_for": "S1,S2,S6",
+        "values": [
+          "1",
+          "2",
+          "3",
+          "4.1",
+          "4.2",
+          "4.3",
+          "5.1",
+          "5.2",
+          "6.1",
+          "6.2",
+          "7",
+          "8",
+          "9",
+          "non-DG"
+        ]
+      },
+      {
+        "key": "packing_group",
+        "type": "enum",
+        "required_for": "DG only",
+        "values": [
+          "I",
+          "II",
+          "III",
+          "n/a"
+        ]
+      },
+      {
+        "key": "ghs_pictograms",
+        "type": "enum[]",
+        "required_for": "S1,S2,S6",
+        "values": [
+          "GHS01",
+          "GHS02",
+          "GHS03",
+          "GHS04",
+          "GHS05",
+          "GHS06",
+          "GHS07",
+          "GHS08",
+          "GHS09"
+        ]
+      },
+      {
+        "key": "h_statements",
+        "type": "string[]",
+        "required_for": "DG only"
+      },
+      {
+        "key": "p_statements",
+        "type": "string[]",
+        "required_for": "DG only"
+      },
+      {
+        "key": "flash_point_c",
+        "type": "decimal",
+        "required_for": "S1,S2,S6"
+      },
+      {
+        "key": "storage_class",
+        "type": "enum",
+        "required_for": "S1,S2,S6",
+        "values": [
+          "SC-1",
+          "SC-2",
+          "SC-3",
+          "SC-4",
+          "SC-5",
+          "SC-6",
+          "SC-7",
+          "SC-8"
+        ]
+      },
+      {
+        "key": "packaging_options",
+        "type": "object[]",
+        "required_for": "S1,S2,S3,S4,S6",
+        "note": "[{unit, net_weight_kg, un_rated, tare_kg}]"
+      },
+      {
+        "key": "moq",
+        "type": "number",
+        "required_for": "S1,S2,S3,S4,S6"
+      },
+      {
+        "key": "uom",
+        "type": "enum",
+        "required_for": "S1,S2,S3,S4,S6",
+        "values": [
+          "kg",
+          "l",
+          "t",
+          "drum",
+          "bag",
+          "pallet",
+          "cylinder",
+          "unit",
+          "box",
+          "set"
+        ]
+      },
+      {
+        "key": "hs_code",
+        "type": "string",
+        "required_for": "S1,S2,S3,S4,S6",
+        "note": "6-10 digit; drives duty and restrictions"
+      },
+      {
+        "key": "country_of_origin",
+        "type": "iso3166",
+        "required_for": "S1,S2,S3,S4,S6"
+      },
+      {
+        "key": "shelf_life_months",
+        "type": "number",
+        "required_for": "S1,S2,S6"
+      },
+      {
+        "key": "certifications",
+        "type": "string[]",
+        "required_for": "conditional",
+        "values": [
+          "ISO 9001",
+          "ISO 14001",
+          "REACH registered",
+          "Halal",
+          "Kosher",
+          "FDA",
+          "GMP",
+          "UL",
+          "CE",
+          "ATEX",
+          "PED",
+          "ASME-U"
+        ]
+      },
+      {
+        "key": "documentation",
+        "type": "enum[]",
+        "required_for": "S1,S2,S3,S4,S6",
+        "values": [
+          "SDS",
+          "CoA",
+          "TDS",
+          "food-grade certificate",
+          "allergen statement",
+          "GMP dossier",
+          "CE declaration",
+          "test certificate 3.1",
+          "calibration certificate"
+        ]
+      },
+      {
+        "key": "regulatory_restrictions",
+        "type": "string[]",
+        "required_for": "S12.4 and similar",
+        "note": "Authorisation / restriction list references"
+      },
+      {
+        "key": "licence_required",
+        "type": "boolean",
+        "required_for": "S30,S32"
+      },
+      {
+        "key": "deviation_disclosure",
+        "type": "string",
+        "required_for": "S65,S66",
+        "note": "Mandatory plain-language statement of what is off-spec"
+      },
+      {
+        "key": "recycled_content_pct",
+        "type": "decimal",
+        "required_for": "S13.6,S68"
+      },
+      {
+        "key": "atex_rating",
+        "type": "string",
+        "required_for": "S37,S38,S49",
+        "note": "e.g. Ex d IIB T4; mandatory for equipment in flammable atmospheres"
+      },
+      {
+        "key": "micron_rating",
+        "type": "number",
+        "required_for": "S47"
+      },
+      {
+        "key": "protection_standard",
+        "type": "string",
+        "required_for": "S46",
+        "note": "e.g. EN 374, EN 166, NIOSH N95, EN ISO 20345"
+      },
+      {
+        "key": "material_grade",
+        "type": "string",
+        "required_for": "S13,S14,S68",
+        "note": "Producer grade code, e.g. HDPE 50018N"
+      },
+      {
+        "key": "melt_flow_index",
+        "type": "decimal",
+        "required_for": "S13.1-S13.4,S13.6,S68",
+        "note": "g/10min at standard condition"
+      },
+      {
+        "key": "additive_package",
+        "type": "string",
+        "required_for": "S13",
+        "note": "e.g. antioxidant/UV package present"
+      },
+      {
+        "key": "pot_life_minutes",
+        "type": "number",
+        "required_for": "S13.4",
+        "note": "Thermoset working time after mixing"
+      },
+      {
+        "key": "particle_size_nm",
+        "type": "number",
+        "required_for": "S21.3"
+      },
+      {
+        "key": "viscosity_grade",
+        "type": "string",
+        "required_for": "S27",
+        "note": "ISO VG 32/46/68 or SAE grade"
+      },
+      {
+        "key": "cure_time_minutes",
+        "type": "number",
+        "required_for": "S28"
+      },
+      {
+        "key": "activity_units",
+        "type": "string",
+        "required_for": "S33",
+        "note": "e.g. KNU/g for enzymes, wt% for metal loading"
+      },
+      {
+        "key": "allergen_declaration",
+        "type": "string[]",
+        "required_for": "S26"
+      },
+      {
+        "key": "grade_certificate",
+        "type": "document",
+        "required_for": "S26",
+        "note": "Food/pharma/cosmetic grade certificate per batch"
+      },
+      {
+        "key": "registration_number",
+        "type": "string",
+        "required_for": "S30",
+        "note": "National pesticide / fertiliser registration"
+      },
+      {
+        "key": "cert_of_analysis_batch",
+        "type": "document",
+        "required_for": "S31"
+      },
+      {
+        "key": "gmp_documentation",
+        "type": "document",
+        "required_for": "S32"
+      },
+      {
+        "key": "dmf_cep_reference",
+        "type": "string",
+        "required_for": "S32",
+        "note": "DMF / CEP / ASMF reference for APIs and excipients"
+      },
+      {
+        "key": "capacity_or_rating",
+        "type": "object",
+        "required_for": "S34-S44",
+        "note": "{value, unit} e.g. {5000, L} or {75, kW}"
+      },
+      {
+        "key": "material_of_construction",
+        "type": "string",
+        "required_for": "S34-S52,S68",
+        "note": "SS316L, GLA, PP, PTFE, EPDM ..."
+      },
+      {
+        "key": "condition",
+        "type": "enum",
+        "required_for": "S34-S44",
+        "values": [
+          "new",
+          "refurbished",
+          "used-inspected",
+          "used-as-is",
+          "rental"
+        ]
+      },
+      {
+        "key": "lead_time_weeks",
+        "type": "number",
+        "required_for": "S34-S44"
+      },
+      {
+        "key": "power_supply",
+        "type": "string",
+        "required_for": "S34-S44",
+        "note": "e.g. 415V 3ph 50Hz"
+      },
+      {
+        "key": "warranty_months",
+        "type": "number",
+        "required_for": "S34-S44"
+      },
+      {
+        "key": "installation_offered",
+        "type": "boolean",
+        "required_for": "S34-S44"
+      },
+      {
+        "key": "wetted_materials",
+        "type": "string[]",
+        "required_for": "S37"
+      },
+      {
+        "key": "calibration_certificate",
+        "type": "document",
+        "required_for": "S38,S42"
+      },
+      {
+        "key": "inspection_report",
+        "type": "document",
+        "required_for": "S44",
+        "note": "Third-party condition report - mandatory for used equipment"
+      },
+      {
+        "key": "year_of_manufacture",
+        "type": "number",
+        "required_for": "S44"
+      },
+      {
+        "key": "size_spec",
+        "type": "string",
+        "required_for": "S45-S52",
+        "note": "Dimension/size string, e.g. 200 L, 25 micron x 7 inch"
+      },
+      {
+        "key": "pack_qty",
+        "type": "object",
+        "required_for": "S45-S52",
+        "note": "{qty, unit} per selling pack"
+      },
+      {
+        "key": "un_rating_for_dg",
+        "type": "string",
+        "required_for": "S45",
+        "note": "UN packaging code e.g. 1H1/Y1.8/150; mandatory for DG fills"
+      },
+      {
+        "key": "chemical_compatibility",
+        "type": "string",
+        "required_for": "S48",
+        "note": "Compatibility class / chart reference"
+      },
+      {
+        "key": "scope_of_work",
+        "type": "string",
+        "required_for": "S55-S61"
+      },
+      {
+        "key": "sla_hours",
+        "type": "number",
+        "required_for": "S55-S61"
+      },
+      {
+        "key": "service_area",
+        "type": "string[]",
+        "required_for": "S55-S61",
+        "note": "ISO 3166 codes covered"
+      },
+      {
+        "key": "licences",
+        "type": "string[]",
+        "required_for": "S55-S61"
+      },
+      {
+        "key": "dg_transport_licence",
+        "type": "string",
+        "required_for": "S56"
+      },
+      {
+        "key": "accreditation_scope",
+        "type": "string",
+        "required_for": "S57",
+        "note": "ISO/IEC 17025 scope reference"
+      },
+      {
+        "key": "regulated_entity_partner",
+        "type": "string",
+        "required_for": "S60",
+        "note": "NBFC / bank / insurer partner name"
+      },
+      {
+        "key": "waste_handling_licence",
+        "type": "string",
+        "required_for": "S61"
+      },
+      {
+        "key": "shelf_life_remaining_pct",
+        "type": "decimal",
+        "required_for": "S65,S66"
+      },
+      {
+        "key": "recovery_source",
+        "type": "string",
+        "required_for": "S67",
+        "note": "Origin stream + distillation report reference"
+      },
+      {
+        "key": "contamination_profile",
+        "type": "string",
+        "required_for": "S68"
+      }
+    ]
+  },
+  "reference": {
+    "storage_classes": [
+      {
+        "code": "SC-1",
+        "name": "Corrosive acids",
+        "rule": "Separate bunded area; never with alkalis or hypochlorite"
+      },
+      {
+        "code": "SC-2",
+        "name": "Corrosive alkalis",
+        "rule": "Bunded, dry, away from acids and reactive metals"
+      },
+      {
+        "code": "SC-3",
+        "name": "Flammable liquids",
+        "rule": "Fire-rated store, ATEX electricals, bonding and earthing"
+      },
+      {
+        "code": "SC-4",
+        "name": "Oxidisers",
+        "rule": "Away from flammables and organic material"
+      },
+      {
+        "code": "SC-5",
+        "name": "Compressed gases",
+        "rule": "Upright, chained, ventilated, segregated by gas type"
+      },
+      {
+        "code": "SC-6",
+        "name": "Toxic and CMR substances",
+        "rule": "Locked store with access log"
+      },
+      {
+        "code": "SC-7",
+        "name": "Water-reactive materials",
+        "rule": "Dry store, no water-based fire suppression"
+      },
+      {
+        "code": "SC-8",
+        "name": "General non-DG",
+        "rule": "Standard racking"
+      }
+    ],
+    "ghs_pictograms": [
+      {
+        "code": "GHS01",
+        "meaning": "Exploding bomb - explosives"
+      },
+      {
+        "code": "GHS02",
+        "meaning": "Flame - flammable"
+      },
+      {
+        "code": "GHS03",
+        "meaning": "Flame over circle - oxidising"
+      },
+      {
+        "code": "GHS04",
+        "meaning": "Gas cylinder - gases under pressure"
+      },
+      {
+        "code": "GHS05",
+        "meaning": "Corrosion - corrosive"
+      },
+      {
+        "code": "GHS06",
+        "meaning": "Skull and crossbones - acute toxicity"
+      },
+      {
+        "code": "GHS07",
+        "meaning": "Exclamation mark - irritant / sensitiser"
+      },
+      {
+        "code": "GHS08",
+        "meaning": "Health hazard - CMR / STOT"
+      },
+      {
+        "code": "GHS09",
+        "meaning": "Environment - hazardous to aquatic environment"
+      }
+    ]
+  }
+}

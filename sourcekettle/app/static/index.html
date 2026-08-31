@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SourceKettle — Industrial Chemical, Equipment & Consumable Sourcing</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127866;</text></svg>">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">SK</span>
+    <div>
+      <h1>SourceKettle</h1>
+      <p>Chemicals, line equipment &amp; plant consumables — sourced around the line, not the molecule.</p>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="catalogue" class="active">Catalogue</button>
+  <button data-tab="lines">Line Builder</button>
+  <button data-tab="sourcing">Sourcing &amp; Auction</button>
+  <button data-tab="market">Market Index</button>
+  <button data-tab="cart">Cart &amp; Compliance <span class="badge" id="cart-badge">0</span></button>
+  <button data-tab="insights">Insights</button>
+  <button data-tab="orders">Orders</button>
+</nav>
+
+<main>
+  <!-- ======================= CATALOGUE ======================= -->
+  <section id="tab-catalogue" class="tab active">
+    <div class="layout">
+      <aside class="filters">
+        <label>Search
+          <input id="f-q" type="search" placeholder="caustic, naoh, 1310-73-2, LABSA…">
+        </label>
+        <p class="hint">Synonyms expand: <code>naoh</code> → caustic soda, <code>hcl</code> → hydrochloric acid.</p>
+
+        <label>Pillar
+          <select id="f-pillar"><option value="">All pillars</option></select>
+        </label>
+        <label>Production line (application)
+          <select id="f-app"><option value="">All lines</option></select>
+        </label>
+        <label>Grade
+          <select id="f-grade">
+            <option value="">Any grade</option>
+            <option>industrial</option><option>technical</option><option>AR</option>
+            <option>food</option><option>pharma</option>
+          </select>
+        </label>
+        <label>DG class
+          <select id="f-dg">
+            <option value="">Any</option><option>non-DG</option>
+            <option>3</option><option>6.1</option><option>8</option><option>9</option>
+          </select>
+        </label>
+        <label>Storage class
+          <select id="f-storage"><option value="">Any</option></select>
+        </label>
+        <button id="f-clear" class="ghost">Clear filters</button>
+        <div id="facet-count" class="facet-count"></div>
+      </aside>
+      <div id="results" class="results"></div>
+      <div id="pager" class="pager"></div>
+    </div>
+  </section>
+
+  <!-- ======================= LINE BUILDER ======================= -->
+  <section id="tab-lines" class="tab">
+    <div class="intro">
+      <h2>Sell the line, not the molecule</h2>
+      <p>Pick the production line a plant runs. SourceKettle returns every role that line needs —
+      chemicals, machinery and consumables together — which is the whole point of the taxonomy's
+      second axis.</p>
+    </div>
+    <div id="line-picker" class="line-picker"></div>
+    <div id="line-detail"></div>
+  </section>
+
+  <!-- ======================= CART & COMPLIANCE ======================= -->
+  <section id="tab-cart" class="tab">
+    <div class="intro">
+      <h2>Compliance envelope</h2>
+      <p>Every check below is evaluated by the same rules engine covered by the 30-test suite.
+      A <strong>block</strong> outcome has no override — the order simply cannot be placed.</p>
+    </div>
+    <div class="layout">
+      <div class="cart-col">
+        <div id="cart-items"></div>
+
+        <div class="card ship">
+          <h3>Shipment</h3>
+          <div class="ship-grid" id="ship-summary"></div>
+          <label class="chk"><input type="checkbox" id="s-declared"> DG declaration prepared</label>
+          <label class="chk"><input type="checkbox" id="s-doc"> Declaration document attached</label>
+          <label class="chk"><input type="checkbox" id="s-carrier"> Carrier is DG-authorised</label>
+          <label class="chk"><input type="checkbox" id="s-licence"> Buyer holds the required licence</label>
+          <button id="btn-evaluate" class="primary">Run compliance checks</button>
+        </div>
+      </div>
+
+      <div class="find-col">
+        <div id="verdict" class="verdict empty">Add items, then run the checks.</div>
+        <div id="findings"></div>
+        <div id="warehouse"></div>
+        <button id="btn-place" class="place" disabled>Place order</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= SOURCING & AUCTION ======================= -->
+  <section id="tab-sourcing" class="tab">
+    <div class="intro">
+      <h2>RFQ &amp; sealed reverse auction</h2>
+      <p>Build an RFQ from your cart or from a whole production line, then collect sealed bids.
+      Ranking is on <strong>total landed cost</strong> — never on headline price — with supplier
+      tier and performance score as documented tie-breakers.</p>
+    </div>
+    <div class="card">
+      <h3>New RFQ</h3>
+      <div class="rfq-form">
+        <label>Source from
+          <select id="rfq-src">
+            <option value="cart">Current cart</option>
+            <option value="B02">Line template — liquid detergent</option>
+            <option value="B01">Line template — water treatment</option>
+          </select>
+        </label>
+        <label>Delivery location<input id="rfq-loc" value="Lagos, NG"></label>
+        <label>Required by<input id="rfq-by" value="2026-09-30"></label>
+        <label>Payment terms (days)<input id="rfq-terms" type="number" value="30"></label>
+        <label>Mode
+          <select id="rfq-mode">
+            <option value="sealed_auction">Sealed auction</option>
+            <option value="open_rfq">Open RFQ</option>
+          </select>
+        </label>
+        <button id="rfq-create" class="primary" style="margin-top:0">Create RFQ</button>
+      </div>
+    </div>
+    <div id="rfq-out"></div>
+  </section>
+
+  <!-- ======================= MARKET INDEX ======================= -->
+  <section id="tab-market" class="tab">
+    <div class="intro">
+      <h2>Price index</h2>
+      <p>Rolling 30-day volume-weighted median landed price. An index is only published with at
+      least 5 independent observations, always discloses its <em>n</em>, and excludes related-party
+      transactions. That discipline is what makes it a reference rather than marketing.</p>
+    </div>
+    <div class="line-picker" id="index-picker"></div>
+    <div id="index-detail"></div>
+  </section>
+
+  <!-- ======================= INSIGHTS ======================= -->
+  <section id="tab-insights" class="tab">
+    <div class="intro">
+      <h2>Insights</h2>
+      <p>Substitution, supplier scorecards, replenishment, document vault and spend analytics —
+      the services that make leaving the platform an actual cost.</p>
+    </div>
+
+    <div class="card">
+      <h3>Substitution finder</h3>
+      <p class="sub" style="color:var(--muted);font-size:.85rem">Finds stand-ins by CAS, segment,
+      grade, form, storage and DG class. Anything scoring below 40 is withheld rather than guessed.</p>
+      <select id="sub-target"></select>
+      <div id="sub-out"></div>
+    </div>
+
+    <div class="card">
+      <h3>Supplier scorecards</h3>
+      <p class="sub" style="color:var(--muted);font-size:.85rem">Recomputed from fulfilled orders —
+      never self-reported.</p>
+      <div id="scorecards"></div>
+    </div>
+
+    <div class="card">
+      <h3>Replenishment</h3>
+      <p class="sub" style="color:var(--muted);font-size:.85rem">Usage rate against lead time and
+      safety stock. Suggestions respect each product's MOQ.</p>
+      <div id="replenish"></div>
+    </div>
+
+    <div class="card">
+      <h3>Document vault</h3>
+      <p class="sub" style="color:var(--muted);font-size:.85rem">Every SDS revision is retained
+      immutably; only the current revision raises an alert. Expired documents block shipment.</p>
+      <div id="docs"></div>
+    </div>
+
+    <div class="card">
+      <h3>Spend analytics</h3>
+      <div id="analytics"></div>
+    </div>
+  </section>
+
+  <!-- ======================= ORDERS ======================= -->
+  <section id="tab-orders" class="tab">
+    <div class="intro">
+      <h2>Confirmed orders</h2>
+      <p>An order only exists here if every compliance rule passed. Blocked baskets are rejected
+      at the API with HTTP 422.</p>
+    </div>
+    <div id="order-list"></div>
+  </section>
+</main>
+
+<footer>
+  <p>SourceKettle reference application · taxonomy-driven · compliance rules from
+  <code>engine/rules.py</code> · seed data is illustrative and must be replaced with verified
+  supplier records in production.</p>
+</footer>
+
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
