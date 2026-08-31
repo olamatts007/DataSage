@@ -71,7 +71,7 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
         </div>
 
         <div className="center mt16">
-          <a href="#/admin" className="small dim" style={{ textDecoration: 'underline' }}>Administrator sign-in →</a>
+          <a href="#/admin" className="small dim" style={{ textDecoration: 'underline' }}>Access control console →</a>
         </div>
       </div>
       <div className="hint center mt16" style={{ maxWidth: 420 }}>

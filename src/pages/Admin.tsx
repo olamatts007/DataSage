@@ -1,23 +1,15 @@
 import React, { useMemo, useState } from 'react'
 import { useStore } from '../state/store'
 import {
-  GRANT_LABELS, GrantKind, generateCode, getAdminPassHash, setAdminPassHash,
-  sha256, isAdminAuthed, setAdminAuthed, writeAccessSession, AccessCode,
+  GRANT_LABELS, GrantKind, generateCode, setAdminAuthed,
+  AccessCode, GateMode,
 } from '../lib/access'
-import { fmtDate } from '../lib/format'
+import { fmtDate, uid } from '../lib/format'
 import { download } from '../lib/csv'
 import { PageHead, Notice, Icon, Stat } from '../components/ui'
-import { uid } from '../lib/format'
-
-type Stage = 'setup' | 'login' | 'in'
 
 export default function Admin() {
   const { state, dispatch } = useStore()
-  const [stage, setStage] = useState<Stage>(() => (isAdminAuthed() ? 'in' : getAdminPassHash() ? 'login' : 'setup'))
-  const [p1, setP1] = useState('')
-  const [p2, setP2] = useState('')
-  const [pw, setPw] = useState('')
-  const [err, setErr] = useState('')
   const [copied, setCopied] = useState('')
   const [form, setForm] = useState({
     grant: 'trial' as GrantKind,
@@ -27,26 +19,8 @@ export default function Admin() {
   })
   const [newCode, setNewCode] = useState<AccessCode | null>(null)
 
-  const setup = async () => {
-    if (p1.length < 8) return setErr('Use at least 8 characters.')
-    if (p1 !== p2) return setErr('Passcodes do not match.')
-    setAdminPassHash(await sha256(p1))
-    setAdminAuthed(true)
-    setStage('in')
-  }
-
-  const login = async () => {
-    if ((await sha256(pw)) === getAdminPassHash()) {
-      setAdminAuthed(true)
-      setPw('')
-      setStage('in')
-    } else setErr('Incorrect admin passcode.')
-  }
-
-  const logout = () => {
-    setAdminAuthed(false)
-    setStage('login')
-  }
+  // Visiting this console counts as admin presence for the session — no login required.
+  React.useEffect(() => setAdminAuthed(true), [])
 
   const makeCode = () => {
     const code: AccessCode = {
@@ -79,14 +53,15 @@ export default function Admin() {
       'application/json'
     )
 
-  /** Provisioning bundle — the exact file to ship as public/access-codes.json in the build,
-      so customers opening a HOSTED URL get the registry (their browser ≠ your localStorage). */
+  /** Provisioning bundle — ship as public/access-codes.json so hosted test URLs carry the
+      registry AND the chosen gate mode (customers' browser ≠ your localStorage). */
   const exportProvisionFile = () =>
     download(
       'access-codes.json',
       JSON.stringify(
         {
-          note: 'TaxSage provisioning bundle. Place this file at public/access-codes.json, rebuild (npm run build) and redeploy. Local device state still overrides for revocations made after shipping.',
+          note: 'TaxSage provisioning bundle. Place at public/access-codes.json, rebuild (npm run build) and redeploy. "gate" controls whether visitors see the access gate.',
+          gate: state.gateMode,
           generatedAt: new Date().toISOString(),
           codes: state.accessCodes,
         },
@@ -115,58 +90,46 @@ export default function Admin() {
     return <span className="chip green">live</span>
   }
 
-  // ── auth screens ──────────────────────────────────────────────────────────
-  if (stage !== 'in') {
-    return (
-      <div className="gate-screen">
-        <div className="gate-card card">
-          <div className="brand-mark" style={{ justifyContent: 'center', fontSize: 22 }}>
-            <span className="logo">₦</span> <span style={{ color: 'var(--green-950)' }}>Admin</span>
-          </div>
-          <p className="small dim center mt8" style={{ maxWidth: 380, margin: '8px auto 0' }}>
-            {stage === 'setup'
-              ? 'Create the administrator passcode for this device. It controls access-code generation — keep it private.'
-              : 'Enter the administrator passcode to manage customer test-run access codes.'}
-          </p>
-          {stage === 'setup' ? (
-            <div className="mt16">
-              <label className="lab">New admin passcode</label>
-              <input className="inp" type="password" value={p1} onChange={(e) => { setP1(e.target.value); setErr('') }} placeholder="min. 8 characters" />
-              <label className="lab mt8">Repeat passcode</label>
-              <input className="inp" type="password" value={p2} onChange={(e) => { setP2(e.target.value); setErr('') }} />
-            </div>
-          ) : (
-            <div className="mt16">
-              <label className="lab">Admin passcode</label>
-              <input className="inp" type="password" value={pw} onChange={(e) => { setPw(e.target.value); setErr('') }} onKeyDown={(e) => e.key === 'Enter' && login()} autoFocus />
-            </div>
-          )}
-          {err && <div className="notice red mt8"><Icon name="alert" size={15} /><div>{err}</div></div>}
-          <button className="btn btn-primary mt16" style={{ width: '100%' }} onClick={stage === 'setup' ? setup : login}>
-            {stage === 'setup' ? 'Create passcode & enter' : 'Sign in'}
-          </button>
-          <div className="center mt16"><a href="#/" className="small dim" style={{ textDecoration: 'underline' }}>← Back to access gate</a></div>
-          <div className="hint center mt8">Forgot the passcode? Clear this site's storage (dev tools → Application → Local Storage) to reset.</div>
-        </div>
-      </div>
-    )
+  const setGate = (mode: GateMode) => {
+    dispatch({ type: 'setGateMode', mode })
+    if (mode === 'open') setCopied('')
   }
 
-  // ── admin console ─────────────────────────────────────────────────────────
   return (
     <div>
       <PageHead
-        title="Admin — Test-Run Access Control"
-        sub="Generate, share and revoke access codes. Every code carries a plan grant (trial or Premium period), an expiry and an activation cap. Customers unlock the prototype at the access gate."
+        title="Access Control"
+        sub="No sign-in needed — this console is open on your device. Generate codes for customers, flip the gate on/off, and ship everything with hosted builds."
         right={
-          <>
-            <button className="btn btn-ghost" onClick={() => { writeAccessSession(null); window.location.hash = '#/overview' }}>
-              <Icon name="arrow" size={14} /> Open app as admin
-            </button>
-            <button className="btn btn-danger" onClick={logout}>Sign out</button>
-          </>
+          <button className="btn btn-primary" onClick={() => { window.location.hash = '#/overview' }}>
+            <Icon name="arrow" size={14} /> Open app
+          </button>
         }
       />
+
+      {/* gate mode */}
+      <div className="card card-pad mb16">
+        <div className="flex-between">
+          <div>
+            <h3 className="card-title">App access mode</h3>
+            <p className="card-sub" style={{ marginBottom: 0 }}>
+              <b>Gate on</b> — visitors must enter a code to use the app. <b>Open</b> — everyone gets straight in (no wall at all).
+              Hosted URLs inherit the mode from your provisioning bundle.
+            </p>
+          </div>
+          <div className="period-toggle" style={{ minWidth: 210, margin: 0 }}>
+            <button className={state.gateMode === 'open' ? 'on' : ''} onClick={() => setGate('open')}>
+              🔓 Open access
+            </button>
+            <button className={state.gateMode === 'code' ? 'on' : ''} onClick={() => setGate('code')}>
+              🔒 Gate with codes
+            </button>
+          </div>
+        </div>
+        {state.gateMode === 'open' && (
+          <div className="mt8"><Notice tone="blue">Open access is active on this device — the app loads directly with no code. Hosted copies keep their own setting until you ship a new provisioning bundle.</Notice></div>
+        )}
+      </div>
 
       <div className="grid g3 mb16">
         <Stat tone="accent" k="Codes issued" v={stats.total} s="all time, this device" />
@@ -223,10 +186,10 @@ export default function Admin() {
           <div className="card card-pad">
             <h3 className="card-title">Distributing the prototype</h3>
             <ol className="small" style={{ margin: '6px 0 0', paddingLeft: 17, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <li>Run <span className="mono">npm run build</span> → share the <b>taxsage-prototype.zip</b> bundle (or host <span className="mono">dist/</span> on any static host).</li>
-              <li>Customers open the app and land on the <b>access gate</b> — nothing else loads.</li>
+              <li>Run <span className="mono">npm run build</span> → share <b>taxsage-prototype.zip</b> (or host <span className="mono">dist/</span> / enable GitHub Pages on <span className="mono">docs/</span>).</li>
+              <li>With the gate <b>on</b>, customers see the access gate first. With the gate <b>off</b> they get straight in.</li>
               <li>Send each customer a code from this console (copy the share message — WhatsApp-ready).</li>
-              <li>Watch activations below; revoke instantly to cut access. Revoked codes are blocked at next validation.</li>
+              <li>Watch activations; revoke instantly.</li>
             </ol>
             <button className="btn btn-ghost btn-sm mt8" onClick={exportCodes} disabled={!state.accessCodes.length}>
               <Icon name="download" size={13} /> Export codes (.json)
@@ -234,21 +197,21 @@ export default function Admin() {
           </div>
 
           <div className="card card-pad" style={{ borderColor: '#ecd996', background: '#fffdf4' }}>
-            <h3 className="card-title">⚠ Hosted URL? Ship the codes too</h3>
+            <h3 className="card-title">⚠ Hosted URL? Ship the settings too</h3>
             <p className="small" style={{ margin: '4px 0 8px' }}>
-              Each browser keeps its own registry. Customers opening your <b>hosted test URL</b> start with an
-              <b> empty</b> registry — generate codes here, then embed them in the deployment:
+              Each browser keeps its own registry & gate mode. Customers opening your <b>hosted test URL</b> start
+              fresh — bundle your settings into the deployment:
             </p>
             <ol className="small" style={{ margin: 0, paddingLeft: 17, display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <li>Generate the codes on the left.</li>
+              <li>Generate codes & set the gate mode above.</li>
               <li><b>Download the provisioning bundle</b> below.</li>
               <li>Save it as <span className="mono">public/access-codes.json</span> in the repo.</li>
               <li>Rebuild & redeploy (<span className="mono">npm run deploy:test</span>).</li>
             </ol>
-            <button className="btn btn-gold btn-sm mt8" onClick={exportProvisionFile} disabled={!state.accessCodes.length}>
+            <button className="btn btn-gold btn-sm mt8" onClick={exportProvisionFile} disabled={!state.accessCodes.length && state.gateMode === 'code'}>
               <Icon name="download" size={13} /> Download provisioning bundle (access-codes.json)
             </button>
-            <div className="hint mt8">Revoking after shipment = revoke here, re-download, redeploy. Local test copies manage themselves.</div>
+            <div className="hint mt8">The bundle carries your gate mode too — <b>{state.gateMode === 'open' ? 'open access' : 'code gate'}</b> will ship.</div>
           </div>
         </div>
 
@@ -256,7 +219,7 @@ export default function Admin() {
           <h3 className="card-title">Access code registry</h3>
           <p className="card-sub">Status, usage and controls for every issued code.</p>
           {state.accessCodes.length === 0 ? (
-            <Notice tone="blue">No codes yet — generate your first one on the left and share it with a test customer.</Notice>
+            <Notice tone="blue">No codes yet — generate your first one on the left, or switch to Open access above if you don't need codes at all.</Notice>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table className="tbl">
@@ -272,7 +235,7 @@ export default function Admin() {
                       <td>{codeStatus(c)}</td>
                       <td>
                         <div className="row" style={{ gap: 4 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => copy(c.id === 'x' ? '' : shareText(c), c.id)}>{copied === c.id ? '✓' : 'Share'}</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => copy(shareText(c), c.id)}>{copied === c.id ? '✓' : 'Share'}</button>
                           {!c.revoked && <button className="btn btn-danger btn-sm" onClick={() => dispatch({ type: 'revokeAccessCode', id: c.id })}>Revoke</button>}
                         </div>
                       </td>
@@ -283,8 +246,8 @@ export default function Admin() {
             </div>
           )}
           <div className="hint mt8" style={{ fontSize: 11 }}>
-            Prototype-grade control: validation happens client-side on the customer's device snapshot of the registry —
-            for production, pair this with a server-side code store (see docs/DESIGN.md §Access).
+            Prototype-grade control: validation happens client-side on the customer's device copy of the registry —
+            for production, pair this with a server-side code store (see docs/DESIGN.md §6b).
           </div>
         </div>
       </div>

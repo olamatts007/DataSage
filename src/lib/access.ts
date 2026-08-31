@@ -124,19 +124,31 @@ export function setAdminPassHash(hash: string): void {
 
 export const PROVISION_PATH = './access-codes.json'
 
+export type GateMode = 'code' | 'open' // 'code' = access gate enforced; 'open' = no wall
+
 export interface ProvisionedFile {
   generatedAt: string
   codes: AccessCode[]
+  /** gate mode shipped with the deployment; absent → 'code' (gate enforced) */
+  gate?: GateMode
 }
 
-export async function fetchProvisionedCodes(): Promise<AccessCode[]> {
+export interface ProvisionPayload {
+  codes: AccessCode[]
+  gate: GateMode | null
+}
+
+export async function fetchProvisioned(): Promise<ProvisionPayload> {
   try {
     const res = await fetch(PROVISION_PATH, { cache: 'no-store' })
-    if (!res.ok) return []
+    if (!res.ok) return { codes: [], gate: null }
     const data = (await res.json()) as ProvisionedFile
-    return Array.isArray(data?.codes) ? data.codes : []
+    return {
+      codes: Array.isArray(data?.codes) ? data.codes : [],
+      gate: data?.gate === 'open' || data?.gate === 'code' ? data.gate : null,
+    }
   } catch {
-    return [] // no provisioning file (local/dev builds) — fine
+    return { codes: [], gate: null } // no provisioning file (local/dev builds) — fine
   }
 }
 

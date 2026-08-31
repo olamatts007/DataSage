@@ -3,7 +3,7 @@ import { StoreProvider, useStore } from './state/store'
 import { Layout, useHashRoute } from './components/Layout'
 import { ErrorBoundary, RouteSkeleton } from './components/chrome'
 import AccessGate from './components/AccessGate'
-import { checkCode, fetchProvisionedCodes, isAdminAuthed, readAccessSession, writeAccessSession } from './lib/access'
+import { checkCode, fetchProvisioned, isAdminAuthed, readAccessSession, writeAccessSession } from './lib/access'
 
 // route-level code splitting — the initial chunk stays under ~90KB raw,
 // each screen loads on first visit and is cached afterwards.
@@ -28,7 +28,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '#/calendar': 'Filing Calendar',
   '#/guide': 'The 2025 Tax Acts',
   '#/billing': 'Subscription & Billing',
-  '#/admin': 'Admin — Access Control',
+  '#/admin': 'Access Control',
 }
 
 function Router({ route }: { route: string }) {
@@ -75,17 +75,17 @@ function Shell() {
   const [grantedCode, setGrantedCode] = useState<string | null>(() => sessionValid(state.accessCodes))
   const isAdmin = route.startsWith('#/admin') || isAdminAuthed()
 
-  // merge codes shipped with the deployment (hosted test URLs) into the local registry
+  // merge codes + gate mode shipped with the deployment (hosted test URLs)
   useEffect(() => {
     let alive = true
-    fetchProvisionedCodes().then((codes) => {
-      if (alive && codes.length) dispatch({ type: 'seedAccessCodes', codes })
+    fetchProvisioned().then(({ codes, gate }) => {
+      if (alive && (codes.length || gate)) dispatch({ type: 'seedProvision', codes, gate })
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const gateOpen = !isAdmin && !grantedCode
+  const gateOpen = state.gateMode === 'code' && !isAdmin && !grantedCode
   return (
     <ErrorBoundary>
       {gateOpen ? (

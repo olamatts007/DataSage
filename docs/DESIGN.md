@@ -180,14 +180,16 @@ deleted** when a plan lapses; premium surfaces simply re-lock.
 `START-*` scripts + customer/admin guides. The build uses **relative asset paths** (`base: './'`)
 so the bundle runs from any folder, static host or sub-path.
 
-**Access layer** (`src/lib/access.ts`): the app boots into an **access gate** unless
-(a) the visitor holds a valid session code, or (b) an admin is signed in. Admins set a device
-passcode (SHA-256, WebCrypto) and mint codes shaped `TXS-XXXX-XXXX` from an unambiguous
-32-symbol alphabet. Each code stores: label, grant (`trial` | `monthly` | `quarterly` | `yearly`),
-expiry, activation cap, activation stamps, and a revoked flag. Activation increments usage and
-bestows the grant directly onto the subscription object — no payment step. Session validity is
-**re-checked against the registry on every launch**; revoked/expired codes boot the user back to
-the gate (exhausted codes remain valid for devices already holding that exact session).
+**Access layer** (`src/lib/access.ts`): when **gate mode = `code`**, the app boots into an
+**access gate** unless (a) the visitor holds a valid session code, or (b) the Access Control
+console (`#/admin`) has been visited. When **gate mode = `open`** (toggle in the console, no
+login required), everyone enters directly. Codes shaped `TXS-XXXX-XXXX` are minted from an
+unambiguous 32-symbol alphabet; each stores: label, grant (`trial` | `monthly` | `quarterly` |
+`yearly`), expiry, activation cap, activation stamps, and a revoked flag. Activation increments
+usage and bestows the grant directly onto the subscription object — no payment step. Session
+validity is **re-checked against the registry on every launch**; revoked/expired codes boot the
+user back to the gate (exhausted codes remain valid for devices already holding that exact
+session). Gate mode ships with the provisioning bundle; a local toggle overrides the bundle.
 
 **Provisioning for hosted URLs:** code registries are per-browser (localStorage), so codes minted
 in the admin's browser would never exist in a customer's browser. Deployments therefore ship a

@@ -21,6 +21,9 @@ export const ROUTES = [
     { hash: '#/guide', icon: 'guide', label: 'The New Law' },
     { hash: '#/billing', icon: 'naira', label: 'Subscription' },
   ]},
+  { group: 'Admin', items: [
+    { hash: '#/admin', icon: 'building', label: 'Access Control' },
+  ]},
 ]
 
 export function useHashRoute(): [string, (h: string) => void] {

@@ -5,7 +5,7 @@ import {
   Entitlement, FREE_SUB, Payment, Period, Subscription, computeEntitlement,
   paymentRef, periodEnd, trialEnd, PLANS,
 } from '../lib/billing'
-import { AccessCode, mergeCodes } from '../lib/access'
+import { AccessCode, GateMode, mergeCodes } from '../lib/access'
 
 const KEY = 'taxsage.v1'
 
@@ -13,6 +13,10 @@ export interface PersistedState extends AppState {
   subscription: Subscription
   payments: Payment[]
   accessCodes: AccessCode[]
+  /** access-gate mode for this device/deployment */
+  gateMode: GateMode
+  /** true once the user toggles the mode locally — provisioning no longer overrides it */
+  gateOverride: boolean
 }
 
 type Action =
@@ -35,7 +39,8 @@ type Action =
   | { type: 'addAccessCode'; code: AccessCode }
   | { type: 'revokeAccessCode'; id: string }
   | { type: 'activateAccessCode'; id: string }
-  | { type: 'seedAccessCodes'; codes: AccessCode[] }
+  | { type: 'seedProvision'; codes: AccessCode[]; gate: GateMode | null }
+  | { type: 'setGateMode'; mode: GateMode }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -95,8 +100,14 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       return { ...s, subscription: { ...FREE_SUB, trialUsed: s.subscription.trialUsed, trialEnd: s.subscription.trialEnd } }
     case 'addAccessCode':
       return { ...s, accessCodes: [...s.accessCodes, a.code] }
-    case 'seedAccessCodes':
-      return { ...s, accessCodes: mergeCodes(s.accessCodes, a.codes) }
+    case 'seedProvision':
+      return {
+        ...s,
+        accessCodes: mergeCodes(s.accessCodes, a.codes),
+        gateMode: s.gateOverride || a.gate === null ? s.gateMode : a.gate,
+      }
+    case 'setGateMode':
+      return { ...s, gateMode: a.mode, gateOverride: true }
     case 'revokeAccessCode':
       return { ...s, accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, revoked: true } : c)) }
     case 'activateAccessCode': {
@@ -165,6 +176,8 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     subscription: { ...FREE_SUB, ...(parsed.subscription ?? {}) },
     payments: parsed.payments ?? [],
     accessCodes: parsed.accessCodes ?? [],
+    gateMode: parsed.gateMode ?? 'code',
+    gateOverride: parsed.gateOverride ?? false,
   }
 }
 

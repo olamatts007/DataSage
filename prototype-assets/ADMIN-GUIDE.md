@@ -1,13 +1,18 @@
 # TaxSage Prototype — Administrator Guide
 
-You control who can use this prototype through **generated access codes**.
+You control who can use this prototype through **generated access codes** — no admin login required.
 
-## First sign-in (one-time, per device)
+## Opening the console
 
-1. Start the server (`START-*` script or `node server.js`) and open **http://localhost:4173**.
-2. Click **"Administrator sign-in →"**. Since no passcode exists yet, you'll **create one**
-   (min 8 characters, stored SHA-256-hashed on this device).
-3. You're now in **Admin — Test-Run Access Control**.
+Start the server (`START-*` script or `node server.js`), open **http://localhost:4173**, and go to
+**Access Control** in the sidebar (or `#/admin`, or the link on the access gate). The console opens
+directly — there is **no passcode**; keep the URL private instead. Use the **App access mode**
+toggle at the top:
+
+- 🔓 **Open access** — the app loads for everyone immediately (no wall).
+- 🔒 **Gate with codes** — visitors must enter a valid code. (Default for shipped builds.)
+
+**"Open app"** (top-right) returns to the product.
 
 ## Generating customer codes
 
@@ -40,13 +45,13 @@ Two supported channels:
 
 Code registries are per-browser. After minting codes in this console:
 
-1. Click **"Download provisioning bundle (access-codes.json)"**.
-2. Save it as `public/access-codes.json` in the repo.
-3. Rebuild & redeploy (`npm run deploy:test`, or re-zip via `npm run package:prototype`).
+1. Set your **gate mode** and mint codes.
+2. Click **"Download provisioning bundle (access-codes.json)"**.
+3. Save it as `public/access-codes.json` in the repo.
+4. Rebuild & redeploy (`npm run deploy:test`, or re-zip via `npm run package:prototype`).
 
-The shipped file ships the registry with the app, so customers' browsers recognise their codes.
-Revocation on hosted URLs: revoke here → re-download the bundle → redeploy. (For centrally-enforced,
-instant revocation you'd add the small server-side lookup noted in docs/DESIGN.md §6b.)
+The bundle ships the registry **and the current gate mode** with the app, so customers' browsers
+inherit both. Revocation/mode changes on hosted URLs: adjust here → re-download → redeploy.
 
 This repo ships demo codes `TXS-DEMO-TR24` (trial) and `TXS-DEMO-PRE26` (annual Premium) in
 `public/access-codes.json` so your first evaluator can get in immediately — replace them.
@@ -58,7 +63,6 @@ In both channels customers still need an access code from you.
 - Validation happens **on the customer's device** against the code registry shipped in that
   build/local copy. Revocations apply to devices that share your storage; for centrally-enforced
   revocation across hosted copies, point `checkCode()` at a small lookup API (see DESIGN.md §Access).
-- Reset admin passcode: browser dev-tools → clear this site's Local Storage.
 - The zip's `dist/` is a production build with relative paths — it runs from **any** subfolder
   or disk location.
 

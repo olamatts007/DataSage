@@ -77,8 +77,8 @@ The repo ships an **admin-controlled access layer** for handing the app to test 
 - Customers land on an **access gate** — a generated code in the format `TXS-XXXX-XXXX` is
   required to open the app; each code carries a **plan grant** (14-day trial or Premium period),
   an **expiry** and an **activation cap**; codes can be **revoked** at any time.
-- **Admin console** at `#/admin` — create a device passcode once, then generate/label/export/
-  revoke codes and watch activations. "Open app as admin" previews the product without a code.
+- **Access Control console** at `#/admin` (**no login required**) — generate/label/export/revoke
+  codes, watch activations, and flip the app between 🔒 *gate with codes* and 🔓 *open access*.
 - `npm run build` produces a fully **relative-pathed `dist/`**; `prototype-assets/` adds a
   zero-dependency `server.js`, `START-WINDOWS.bat` / `START-MAC-LINUX.sh`, and customer & admin
   guides. Zip them together → **`taxsage-prototype.zip` (~120 KB)** — ready to hand out or host
