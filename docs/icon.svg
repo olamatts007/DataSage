@@ -1,5 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0b3d2b"/>
-  <rect x="6" y="6" width="52" height="52" rx="11" fill="none" stroke="#d4a017" stroke-width="2"/>
-  <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#f4d57b">₦</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e4730"/>
+      <stop offset="1" stop-color="#04150e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e4b83d"/>
+      <stop offset="1" stop-color="#d4a017"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.1" r="1">
+      <stop offset="0" stop-color="#2bae7b" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#2bae7b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#glow)"/>
+  <rect x="5.5" y="5.5" width="53" height="53" rx="12" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.9"/>
+  <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="33" font-weight="700" fill="#f6d57f">₦</text>
 </svg>

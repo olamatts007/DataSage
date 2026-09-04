@@ -27,17 +27,21 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
 
   return (
     <div className="gate-screen">
-      <div className="gate-card card">
-        <div className="brand-mark" style={{ justifyContent: 'center', fontSize: 24 }}>
-          <span className="logo">₦</span> <span style={{ color: 'var(--green-950)' }}>TaxSage</span>
-        </div>
-        <div className="center small dim mt8">Prototype build — customer test run</div>
+      <div className="gate-brand">
+        <span className="logo">₦</span>
+        <span>TaxSage</span>
+      </div>
 
-        <div className="mt24 mb8 center" style={{ fontWeight: 800, fontSize: 17 }}>
+      <div className="gate-card card">
+        <div className="row mb8" style={{ justifyContent: 'center', gap: 8 }}>
+          <span className="lock-chip"><Icon name="lock" size={11} /> CONTROLLED TEST RUN</span>
+        </div>
+
+        <div className="mb8 center" style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>
           Enter your access code
         </div>
-        <p className="small dim center mb16" style={{ maxWidth: 380, margin: '0 auto' }}>
-          This app is shared under a controlled test run. The administrator that sent you the
+        <p className="small dim center mb16" style={{ maxWidth: 384, margin: '0 auto', lineHeight: 1.6 }}>
+          This build is shared under an administrator-controlled test run. Whoever sent you the
           link also generated a code in the format <span className="mono">TXS-XXXX-XXXX</span>.
         </p>
 
@@ -59,13 +63,13 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
               spellCheck={false}
             />
             {error && <div className="notice red mt8"><Icon name="alert" size={15} /><div>{error}</div></div>}
-            <button className="btn btn-gold mt16" style={{ width: '100%', fontSize: 14 }} type="submit" disabled={input.length < 14}>
+            <button className="btn btn-gold mt16" style={{ width: '100%', fontSize: 14, padding: '11px 14px' }} type="submit" disabled={input.length < 14}>
               Unlock prototype <Icon name="arrow" size={15} />
             </button>
           </form>
         )}
 
-        <div className="hint center mt16">
+        <div className="hint center mt16" style={{ lineHeight: 1.55 }}>
           No code yet? Request one from your TaxSage administrator — each code carries an expiry and
           activation limit, and grants trial or Premium access automatically.
         </div>
@@ -74,8 +78,11 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
           <a href="#/admin" className="small dim" style={{ textDecoration: 'underline' }}>Access control console →</a>
         </div>
       </div>
-      <div className="hint center mt16" style={{ maxWidth: 420 }}>
-        MSME tax compliance under the gazetted Nigeria Tax Act 2025 · Nigeria Tax Administration Act 2025.
+
+      <div className="gate-foot hint">
+        <span className="small">Nigeria Tax Act 2025</span><span className="dot" />
+        <span className="small">Tax Administration Act 2025</span><span className="dot" />
+        <span className="small">Effective 1 Jan 2026</span>
       </div>
     </div>
   )
