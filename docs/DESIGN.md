@@ -242,3 +242,27 @@ activation history win on conflict). Shipping demo codes is supported out of the
 - Edge rules intentionally out of scope in v1: transfer pricing/ETR for ₦50bn+ groups,
   petroleum operations, free-zone sunset 2028, stamp-duty schedules, industry-specific
   incentives (Economic Development Incentive, agric 5-year holiday shown in Guide only).
+
+---
+
+## Red-team audit — Nigeria deployment (September 2026)
+
+Inherited assumptions challenged, and what changed as a result.
+
+| # | Assumption (previously inherited) | Red-team finding | Resolution |
+|---|-----------------------------------|------------------|------------|
+| 1 | PAYE = bands after 8% pension only | **Over-deducts** NTA 2025-era employees who pay rent — rent relief (lower of 20% of rent or ₦500k) belongs in PAYE whenever the employee's rent is declared, else staff over-remit monthly and wait for refunds. | `Employee.annualRent` added; `payeFor` applies rent relief under NTA 2025; form/table/CSV expose it; schema-migration backfills 0. |
+| 2 | TIN check: "any 6+ chars" passes | Compliance-scored garbage TINs as valid; NTAA doubles WHT without a real TIN. | Strict 8–13-digit validation (dashes ignored) in score + live format warning in Profile. |
+| 3 | Hosted revocation works | `mergeCodes` let a device's stale local copy win forever — a code revoked by re-exporting the bundle **kept working on customer devices**. | Policy fields (revoked∪sticky, expiry, caps, grant) now reconcile bundle-first; observed activations remain additive. Provisioning fetch is `no-store` and SW serves it network-first. |
+| 4 | Users are always online | Hosted app was a dead tab on flaky 3G despite "PWA" manifest. | Real service worker (`public/sw.js`): cache-first hashed shell, network-first provisioning, offline navigation fallback; fonts load async (no render-block). |
+| 5 | Access code gate is unattackable | Unlimited instant guesses (32⁸ ≈ 2×10¹¹ space — improbable, but automation is free). | Session-scoped exponential cool-down: 5 fails → 30s, 10+ → 5min. |
+| 6 | localStorage is a database | Nigerian realities — browser clears, shared devices, lost phones — silently delete a business's statutory books. | `lastBackupAt` tracked; Overview banner after 5+ records and 14 days without export; NDPA-2023 privacy/backup note in Billing. |
+
+### Still-open exposures (accepted for the test-run prototype; fix before public launch)
+
+- **Client-side registry** — access codes & entitlements are inspectable in DevTools; grants can be forged locally. Production requires a server-side code registry + signed entitlements (documented architecture in §Billing).
+- **Payments are simulated** — no Paystack/Flutterwave charge happens; receipts are mock artifacts.
+- **CGT on disposals** — chargeable asset disposals are not a ledger category yet (flagged in Guide).
+- **State-level PAYE variance** — engine uses the federal NTA bands; a few states publish administrative variations of form/process.
+- **No multi-user / accountant role** — single workspace per browser; sharing is via JSON backup transfer.
+- **NRS e-invoicing & portal integration** — must SDK for production filings; outputs remain preparation schedules.

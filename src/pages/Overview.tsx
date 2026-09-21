@@ -61,6 +61,23 @@ export default function Overview() {
         <div className="mb8" key={i}><Notice tone="amber">{w}</Notice></div>
       ))}
 
+      {/* data-loss guard: books live only in this browser — nudge regular backups */}
+      {(() => {
+        const staleDays = state.lastBackupAt
+          ? (Date.now() - new Date(state.lastBackupAt).getTime()) / 86_400_000
+          : Infinity
+        if (state.transactions.length >= 5 && staleDays > 14)
+          return (
+            <div className="mb16">
+              <Notice tone="blue" title="Back up your books — they exist only on this device">
+                {state.transactions.length} records are stored in this browser's local storage only. A cleared browser,
+                lost phone or Windows reset wipes them. <a href="#/billing"><b>Export a JSON backup now →</b></a>
+              </Notice>
+            </div>
+          )
+        return null
+      })()}
+
       <div className="grid g4 mb16">
         <Stat
           tone="accent"

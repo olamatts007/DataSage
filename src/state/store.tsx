@@ -17,6 +17,8 @@ export interface PersistedState extends AppState {
   gateMode: GateMode
   /** true once the user toggles the mode locally — provisioning no longer overrides it */
   gateOverride: boolean
+  /** ISO timestamp of the last JSON backup export — '' = never backed up */
+  lastBackupAt: string
 }
 
 type Action =
@@ -41,6 +43,7 @@ type Action =
   | { type: 'activateAccessCode'; id: string }
   | { type: 'seedProvision'; codes: AccessCode[]; gate: GateMode | null }
   | { type: 'setGateMode'; mode: GateMode }
+  | { type: 'recordBackup' }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -108,6 +111,8 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       }
     case 'setGateMode':
       return { ...s, gateMode: a.mode, gateOverride: true }
+    case 'recordBackup':
+      return { ...s, lastBackupAt: now.toISOString() }
     case 'revokeAccessCode':
       return { ...s, accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, revoked: true } : c)) }
     case 'activateAccessCode': {
@@ -171,13 +176,16 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     ...parsed,
     profile: { ...emptyState().profile, ...(parsed.profile ?? {}) },
     transactions: parsed.transactions ?? [],
-    employees: parsed.employees ?? [],
+    // schema migration: employees gained annualRent (NTA 2025 rent relief) in v2 —
+    // persisted records predating the field are backfilled with 0
+    employees: (parsed.employees ?? []).map((e) => ({ annualRent: 0, ...(e as Partial<Employee>) }) as Employee),
     filings: parsed.filings ?? [],
     subscription: { ...FREE_SUB, ...(parsed.subscription ?? {}) },
     payments: parsed.payments ?? [],
     accessCodes: parsed.accessCodes ?? [],
     gateMode: parsed.gateMode ?? 'code',
     gateOverride: parsed.gateOverride ?? false,
+    lastBackupAt: parsed.lastBackupAt ?? '',
   }
 }
 

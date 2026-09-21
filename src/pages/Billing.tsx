@@ -27,6 +27,7 @@ export default function Billing() {
       JSON.stringify({ app: 'taxsage', version: 2, exportedAt: new Date().toISOString(), data: state }, null, 2),
       'application/json'
     )
+    dispatch({ type: 'recordBackup' })
   }
 
   const importBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +176,11 @@ export default function Billing() {
           {/* backup & restore */}
           <div className="card card-pad">
             <h3 className="card-title">Workspace backup & restore</h3>
-            <p className="card-sub">Your data lives in this browser. Export a full JSON backup before clearing browser storage.</p>
+            <p className="card-sub">
+              Your data lives <b>only in this browser</b> — nothing is uploaded to any server (privacy-friendly under the
+              Nigeria Data Protection Act 2023, but means a cleared browser = lost books). Export a JSON backup regularly
+              {state.lastBackupAt && <> — last backup <b>{new Date(state.lastBackupAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</b></>}.
+            </p>
             <div className="row wrap no-print">
               <button className="btn btn-primary btn-sm" onClick={exportBackup}><Icon name="download" size={13} /> Export backup (.json)</button>
               <button className="btn btn-ghost btn-sm" onClick={() => fileRef.current?.click()}><Icon name="upload" size={13} /> Restore backup</button>

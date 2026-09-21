@@ -1,7 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useStore } from '../state/store'
 import { checkCode, normalizeCode, REASON_TEXT, writeAccessSession, GRANT_LABELS } from '../lib/access'
 import { Icon } from './ui'
+
+// ── brute-force throttle (session-scoped): 5 bad tries → 30s, 10+ → 5min ────
+const THROTTLE_KEY = 'taxsage.gate.throttle'
+type Throttle = { fails: number; until: number }
+const readThrottle = (): Throttle => {
+  try {
+    const t = JSON.parse(sessionStorage.getItem(THROTTLE_KEY) || 'null') as Throttle | null
+    return t && typeof t.fails === 'number' ? t : { fails: 0, until: 0 }
+  } catch { return { fails: 0, until: 0 } }
+}
+const writeThrottle = (t: Throttle) => sessionStorage.setItem(THROTTLE_KEY, JSON.stringify(t))
+const clearThrottle = () => sessionStorage.removeItem(THROTTLE_KEY)
+const cooldownFor = (fails: number) => (fails >= 10 ? 300_000 : 30_000)
 
 /** Full-screen gate shown until the visitor activates a valid access code. */
 export default function AccessGate({ onGranted }: { onGranted: () => void }) {
@@ -9,14 +22,40 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
   const [input, setInput] = useState('')
   const [error, setError] = useState('')
   const [granted, setGranted] = useState<string | null>(null)
+  const [lockedUntil, setLockedUntil] = useState<number>(() => readThrottle().until)
+  const [, setTick] = useState(0)
+
+  const locked = lockedUntil > Date.now()
+
+  // live countdown while in cool-down
+  useEffect(() => {
+    if (!locked) return
+    const id = setInterval(() => {
+      setTick((n) => n + 1)
+      if (lockedUntil <= Date.now()) setLockedUntil(readThrottle().until)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [locked, lockedUntil])
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (readThrottle().until > Date.now()) return // still cooling down
     const res = checkCode(state.accessCodes, input)
     if (!res.ok) {
-      setError(REASON_TEXT[res.reason])
+      const t = readThrottle()
+      const fails = t.fails + 1
+      let until = 0
+      if (fails % 5 === 0) until = Date.now() + cooldownFor(fails)
+      writeThrottle({ fails, until })
+      setLockedUntil(until)
+      setError(
+        until
+          ? `Too many attempts. Locked for ${Math.round((until - Date.now()) / 1000)}s — double-check the code and retry.`
+          : REASON_TEXT[res.reason]
+      )
       return
     }
+    clearThrottle()
     // record activation + bestow the attached grant (trial or premium period)
     dispatch({ type: 'activateAccessCode', id: res.code.id })
     writeAccessSession({ code: res.code.code, grantedAt: new Date().toISOString(), grant: res.code.grant })
@@ -56,15 +95,18 @@ export default function AccessGate({ onGranted }: { onGranted: () => void }) {
               className="inp mono gate-input"
               placeholder="TXS-XXXX-XXXX"
               value={input}
-              onChange={(e) => { setInput(normalizeCode(e.target.value)); setError('') }}
+              onChange={(e) => { setInput(normalizeCode(e.target.value)); setError(locked ? error : '') }}
               autoFocus
               aria-label="Access code"
               autoComplete="off"
               spellCheck={false}
+              disabled={locked}
             />
             {error && <div className="notice red mt8"><Icon name="alert" size={15} /><div>{error}</div></div>}
-            <button className="btn btn-gold mt16" style={{ width: '100%', fontSize: 14, padding: '11px 14px' }} type="submit" disabled={input.length < 14}>
-              Unlock prototype <Icon name="arrow" size={15} />
+            <button className="btn btn-gold mt16" style={{ width: '100%', fontSize: 14, padding: '11px 14px' }} type="submit" disabled={input.length < 14 || locked}>
+              {locked
+                ? <>Locked · retry in {Math.ceil((lockedUntil - Date.now()) / 1000)}s</>
+                : <>Unlock prototype <Icon name="arrow" size={15} /></>}
             </button>
           </form>
         )}

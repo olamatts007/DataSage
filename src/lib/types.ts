@@ -58,6 +58,8 @@ export interface Employee {
   annualGross: number
   /** statutory pension 8% employee contribution (relief) */
   pension: boolean
+  /** annual rent paid by the employee — entitles them to NTA 2025 rent relief (0 if none/unknown) */
+  annualRent: number
 }
 
 export type FilingType = 'PAYE' | 'VAT' | 'WHT' | 'CIT' | 'PIT' | 'PAYE_ANNUAL'
@@ -139,6 +141,10 @@ export interface MonthlyVAT {
 
 export interface PayeResult {
   employee: Employee
+  /** pension (8%) deducted before bands */
+  pensionAmount: number
+  /** NTA 2025 rent relief applied (0 under repealed law or when no rent declared) */
+  rentReliefApplied: number
   chargeable: number
   annualTax: number
   monthlyTax: number

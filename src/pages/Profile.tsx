@@ -42,7 +42,13 @@ export default function Profile() {
             </div>
             <div>
               <label className="lab">Tax ID (TIN)</label>
-              <input className="inp mono" value={p.tin} onChange={(e) => set({ tin: e.target.value })} placeholder="e.g. 20844351-0001 or NIN" />
+              <input className="inp mono" value={p.tin} onChange={(e) => set({ tin: e.target.value })} placeholder="e.g. 20844351-0001" />
+              <div className="hint">
+                JTB/FIRS format: 8–13 digits (dashes optional). Under NTAA 2025, parties without a TIN suffer <b>double WHT</b>.
+                {p.tin.trim() && !/^\d{8,13}$/.test(p.tin.replace(/\D/g, ''))
+                  ? <span style={{ color: 'var(--red)', display: 'block', marginTop: 3 }}>⚠ This doesn't look like a valid TIN — check for letters or missing digits.</span>
+                  : null}
+              </div>
               <div className="hint">Late registration fine: {naira(PENALTIES.noTIN.firstMonth)} first month + {naira(PENALTIES.noTIN.perMonthAfter)}/month while unregistered.</div>
             </div>
             <div>

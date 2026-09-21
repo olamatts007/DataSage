@@ -332,11 +332,16 @@ export function monthlyVAT(transactions: Transaction[], year: number, rules: Rul
 
 export function payeFor(emp: Employee, rules: RuleSet): PayeResult {
   const pension = emp.pension ? emp.annualGross * 0.08 : 0
-  const chargeable = round2(Math.max(0, emp.annualGross - pension))
+  // NTA 2025: an individual (employee included) gets rent relief — lower of 20% of rent paid or ₦500k.
+  // Employers apply it in PAYE when the employee's rent is declared; otherwise it is lost until refund.
+  const relief = rentRelief(emp.annualRent ?? 0, rules)
+  const chargeable = round2(Math.max(0, emp.annualGross - pension - relief))
   const { total } = pitOn(chargeable, rules)
   const monthlyTax = round2(total / 12)
   return {
     employee: emp,
+    pensionAmount: round2(pension),
+    rentReliefApplied: relief,
     chargeable,
     annualTax: total,
     monthlyTax,
@@ -464,11 +469,12 @@ export function urgency(dueDate: string, now: Date): { kind: DeadlineUrgency; da
 
 export function complianceScore(state: AppState, classification: Classification): { score: number; checks: { label: string; ok: boolean; fix: string }[] } {
   const checks: { label: string; ok: boolean; fix: string }[] = []
-  const hasTIN = /^(\d{8,12}|.{6,})$/.test(state.profile.tin.trim()) && state.profile.tin.trim().length > 0
+  // Nigerian TINs are 8–13 digits (JTB format often written XXXXXXXX-XXXX) — dashes/spaces ignored
+  const hasTIN = /^\d{8,13}$/.test(state.profile.tin.replace(/\D/g, ''))
   checks.push({
-    label: 'Tax ID (TIN) recorded',
+    label: 'Valid Tax ID (TIN) recorded',
     ok: hasTIN,
-    fix: 'Add your TIN in Business Profile — NTAA 2025 fines non-registration ₦50,000 + ₦25,000/month.',
+    fix: 'Add a valid TIN (8–13 digits) in Business Profile — NTAA 2025 fines non-registration ₦50,000 + ₦25,000/month, and WHT doubles on parties without one.',
   })
   checks.push({
     label: 'Classification resolved under NTA 2025',

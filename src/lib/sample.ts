@@ -44,9 +44,9 @@ export function smallFoodsScenario(): AppState {
   t.push(tx('2026-06-11', 'expense', 'Professional fees paid (legal, audit)', 'External accountant retainer', 350_000, { partyName: 'BrightBooks Advisory' }))
 
   const employees: Employee[] = [
-    { id: uid(), name: 'Adaeze Nwosu', role: 'Managing Director', annualGross: 4_800_000, pension: true },
-    { id: uid(), name: 'Tunde Bello', role: 'Production lead', annualGross: 1_920_000, pension: true },
-    { id: uid(), name: 'Chiamaka Eze', role: 'Sales & logistics', annualGross: 1_440_000, pension: true },
+    { id: uid(), name: 'Adaeze Nwosu', role: 'Managing Director', annualGross: 4_800_000, pension: true, annualRent: 1_800_000 },
+    { id: uid(), name: 'Tunde Bello', role: 'Production lead', annualGross: 1_920_000, pension: true, annualRent: 600_000 },
+    { id: uid(), name: 'Chiamaka Eze', role: 'Sales & logistics', annualGross: 1_440_000, pension: true, annualRent: 450_000 },
   ]
 
   return {
@@ -92,11 +92,11 @@ export function standardTradingScenario(): AppState {
   t.push(tx('2026-05-14', 'expense', 'Purchase of fixed assets (capital)', 'Delivery vans (2)', 24_000_000, { partyName: 'AutoCorp', nonDeductible: true, whtRate: 0.02 }))
 
   const employees: Employee[] = [
-    { id: uid(), name: 'Ibrahim Danladi', role: 'CEO', annualGross: 12_000_000, pension: true },
-    { id: uid(), name: 'Funke Ogunleye', role: 'Finance manager', annualGross: 6_000_000, pension: true },
-    { id: uid(), name: 'Emeka Obi', role: 'Sales manager', annualGross: 4_800_000, pension: true },
-    { id: uid(), name: 'Ngozi Umeh', role: 'Customer support', annualGross: 1_800_000, pension: true },
-    { id: uid(), name: 'Suleiman Garba', role: 'Warehouse officer', annualGross: 1_500_000, pension: true },
+    { id: uid(), name: 'Ibrahim Danladi', role: 'CEO', annualGross: 12_000_000, pension: true, annualRent: 4_000_000 },
+    { id: uid(), name: 'Funke Ogunleye', role: 'Finance manager', annualGross: 6_000_000, pension: true, annualRent: 1_800_000 },
+    { id: uid(), name: 'Emeka Obi', role: 'Sales manager', annualGross: 4_800_000, pension: true, annualRent: 1_200_000 },
+    { id: uid(), name: 'Ngozi Umeh', role: 'Customer support', annualGross: 1_800_000, pension: true, annualRent: 500_000 },
+    { id: uid(), name: 'Suleiman Garba', role: 'Warehouse officer', annualGross: 1_500_000, pension: true, annualRent: 420_000 },
   ]
 
   return {

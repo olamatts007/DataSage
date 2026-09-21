@@ -152,7 +152,15 @@ export async function fetchProvisioned(): Promise<ProvisionPayload> {
   }
 }
 
-/** Merge ship-file codes into the local registry (local entries win on conflict). */
+/**
+ * Merge ship-file codes into the local registry.
+ *
+ * Reconciliation policy (red-team: revocation must actually propagate to devices
+ * that merged a code before the admin revoked it):
+ * - policy fields (grant, note, expiry, activation cap) — the bundle is admin truth;
+ * - revoked — sticky union: once revoked anywhere, it stays revoked;
+ * - activations — the longer observed list wins (usage evidence is additive).
+ */
 export function mergeCodes(local: AccessCode[], incoming: AccessCode[]): AccessCode[] {
   if (!incoming.length) return local
   const byCode = new Map(local.map((c) => [c.code, c]))
@@ -161,8 +169,12 @@ export function mergeCodes(local: AccessCode[], incoming: AccessCode[]): AccessC
     if (!ex) byCode.set(inc.code, inc)
     else {
       byCode.set(inc.code, {
-        ...inc,
-        ...ex, // local fields (revoked, activations) take precedence
+        ...ex,
+        note: inc.note,
+        grant: inc.grant,
+        expiresAt: inc.expiresAt,
+        maxActivations: inc.maxActivations,
+        revoked: ex.revoked || inc.revoked,
         activations: ex.activations.length >= inc.activations.length ? ex.activations : inc.activations,
       })
     }
