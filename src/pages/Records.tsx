@@ -6,6 +6,7 @@ import { transactionsToCSV, parseTransactionsCSV, download } from '../lib/csv'
 import { Transaction } from '../lib/types'
 import { PageHead, Notice, EmptyState, Icon } from '../components/ui'
 import { LimitMeter, PremiumBanner, UpgradeModal } from '../components/paywall'
+import StatementImport from '../components/StatementImport'
 
 export default function Records() {
   const { state, dispatch } = useStore()
@@ -26,6 +27,8 @@ export default function Records() {
     partyName: '',
     partyHasTIN: true,
     nonDeductible: false,
+    isDisposal: false,
+    costBasis: '',
   })
   const [filter, setFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
@@ -42,6 +45,7 @@ export default function Records() {
       ...f,
       category,
       vat: pr?.vat ?? 'standard',
+      isDisposal: pr?.isDisposal ?? false,
       whtRate: pr?.whtKey
         ? WHT_RATES.find((w) => w.key === pr.whtKey)!.company * 100 // display %
         : 0,
@@ -54,6 +58,7 @@ export default function Records() {
 
   const addTx = () => {
     const amount = Number(form.amount.replace(/,/g, ''))
+    const costBasis = Number(form.costBasis.replace(/,/g, '')) || 0
     if (!amount || amount <= 0 || atLimit) return
     dispatch({
       type: 'addTx',
@@ -69,9 +74,11 @@ export default function Records() {
         partyName: form.partyName,
         partyHasTIN: form.partyHasTIN,
         nonDeductible: form.type === 'expense' ? form.nonDeductible : false,
+        isDisposal: form.type === 'income' ? form.isDisposal : false,
+        costBasis: form.isDisposal ? costBasis : 0,
       },
     })
-    setForm((f) => ({ ...f, description: '', amount: '', partyName: '' }))
+    setForm((f) => ({ ...f, description: '', amount: '', partyName: '', costBasis: '' }))
   }
 
   const onImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,9 +172,16 @@ export default function Records() {
             <input className="inp" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="invoice no., narration…" />
           </div>
           <div>
-            <label className="lab">Amount (₦)</label>
+            <label className="lab">{form.isDisposal ? 'Disposal proceeds (₦)' : 'Amount (₦)'}</label>
             <input className="inp mono" inputMode="numeric" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="0" />
           </div>
+          {form.isDisposal && (
+            <div>
+              <label className="lab">Cost basis (₦)</label>
+              <input className="inp mono" inputMode="numeric" value={form.costBasis} onChange={(e) => setForm({ ...form, costBasis: e.target.value })} placeholder="what you originally paid" />
+              <div className="hint">Gain = proceeds − cost. Not counted in turnover.</div>
+            </div>
+          )}
           <div>
             <label className="lab">VAT treatment</label>
             <select className="inp" value={form.vat} onChange={(e) => setForm({ ...form, vat: e.target.value as any })}>
@@ -213,7 +227,18 @@ export default function Records() {
         {form.type === 'expense' && !form.partyHasTIN && (
           <div className="mt8"><Notice tone="red">Paying vendors without a Tax ID: WHT rate doubles on the transaction, and awarding contracts to unregistered vendors attracts a ₦5,000,000 penalty under NTAA 2025.</Notice></div>
         )}
+        {form.isDisposal && (
+          <div className="mt8"><Notice tone="blue">Asset disposals are capital events: proceeds stay <b>out of your ₦100m turnover test</b>, and the <b>gain</b> is taxed as a chargeable gain — at your PIT bands (individuals) or with profits at 30% (companies). Small companies are fully exempt.</Notice></div>
+        )}
       </div>
+
+      {/* bank / fintech statement ingestion */}
+      <StatementImport
+        existing={state.transactions}
+        remaining={isFinite(ent.limits.records) ? Math.max(0, ent.limits.records - state.transactions.length) : Infinity}
+        onImport={(txs) => { dispatch({ type: 'addManyTx', txs }); window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) }}
+        onLockedFeature={() => setUpgradeOpen(true)}
+      />
 
       {/* summary strip */}
       <div className="grid g4 mb16">
@@ -247,7 +272,7 @@ export default function Records() {
       {rows.length === 0 ? (
           <EmptyState icon="records" title="No records yet"
             action={<button className="btn btn-primary" onClick={() => document.querySelector<HTMLInputElement>('input.inp')?.focus()}>Add your first transaction</button>}>
-            Import a CSV from your bank/bookkeeping, or add entries above. MSMEs must keep books of account — from 2026 this is strictly enforced.
+            Import a bank/fintech statement CSV below (Moniepoint, Kuda, GTBank…) or add entries above. MSMEs must keep books of account for up to <b>6 years</b> — from 2026 this is strictly enforced.
           </EmptyState>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -259,7 +284,11 @@ export default function Records() {
                 {rows.slice(0, 200).map((t) => (
                   <tr key={t.id}>
                     <td className="mono" style={{ whiteSpace: 'nowrap' }}>{fmtDate(t.date)}</td>
-                    <td>{t.description}{t.nonDeductible && <span className="chip gold" style={{ marginLeft: 6 }}>capital</span>}</td>
+                    <td>
+                      {t.description}
+                      {t.nonDeductible && <span className="chip gold" style={{ marginLeft: 6 }}>capital</span>}
+                      {t.isDisposal && <span className="chip blue" style={{ marginLeft: 6 }} title={`proceeds excluded from turnover · gain ${naira(Math.max(0, t.amount - (t.costBasis || 0)))}`}>disposal</span>}
+                    </td>
                     <td className="small dim">{t.category}</td>
                     <td className="small">
                       {t.partyName || '—'}{!t.partyHasTIN && <span className="chip red" style={{ marginLeft: 6 }}>no TIN</span>}

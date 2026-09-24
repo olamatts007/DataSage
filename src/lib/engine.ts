@@ -44,12 +44,20 @@ export function annualTotals(transactions: Transaction[], year: number, fyEndMon
     stdIncome = 0,
     stdExpense = 0,
     zeroIncome = 0,
-    exemptIncome = 0
+    exemptIncome = 0,
+    disposalProceeds = 0,
+    netGains = 0
 
   for (const t of transactions) {
     if (!inWindow(t, start, end)) continue
     const whtAmt = t.amount * (t.whtRate || 0)
     if (t.type === 'income') {
+      // asset disposals are CAPITAL events — never trade turnover (₦100m test must ignore them)
+      if (t.isDisposal) {
+        disposalProceeds += t.amount
+        netGains += t.amount - (t.costBasis || 0)
+        continue
+      }
       turnover += t.amount
       whtSuf += whtAmt
       if (t.vat === 'standard') stdIncome += t.amount
@@ -80,6 +88,8 @@ export function annualTotals(transactions: Transaction[], year: number, fyEndMon
     standardRatedExpense: round2(stdExpense),
     zeroRatedIncome: round2(zeroIncome),
     exemptIncome: round2(exemptIncome),
+    disposalProceeds: round2(disposalProceeds),
+    chargeableGains: round2(Math.max(0, netGains)), // disposal losses ignored at MSME scope
   }
 }
 
@@ -165,7 +175,7 @@ export function classify(profile: BusinessProfile, totals: AnnualTotals, rules: 
       code: 'WHT',
       title: 'Withholding tax',
       detail: isSmall
-        ? 'Small companies are exempt both ways: no WHT deducted from your income, and no duty to deduct on supplier payments.'
+        ? 'Small companies are exempt both ways — provided you hold a valid TIN and are duly registered: no WHT deducted from your income, and no duty to deduct on supplier payments.'
         : 'Deduct WHT on supplier payments (2%/5%/10%) and remit by the 21st; claim credits for WHT suffered on your income.',
       applies: true,
     },
@@ -228,12 +238,29 @@ export function citComputation(
   rules: RuleSet
 ): { lines: TaxLine[]; cit: number; levy: number; netPayable: number } {
   const lines: TaxLine[] = []
-  const profitBeforeTax = round2(totals.turnover - totals.deductibleExpenses - totals.nonDeductibleAddBacks)
+  const tradeProfit = round2(totals.turnover - totals.deductibleExpenses - totals.nonDeductibleAddBacks)
 
   lines.push({ label: 'Total turnover (gross revenue)', amount: totals.turnover })
   lines.push({ label: 'Less: deductible operating expenses', amount: -totals.deductibleExpenses })
   if (totals.nonDeductibleAddBacks > 0)
     lines.push({ label: 'Capital / non-deductible items (excluded)', amount: -totals.nonDeductibleAddBacks, note: 'Shown as capital allowance & add-backs in the full return' })
+
+  // NTA 2025: corporate chargeable gains are taxed WITH profits at the corporate rate
+  // (stand-alone 10% CGT abolished); small companies are fully exempt.
+  // Under the repealed regime, 10% CGT was a separate tax — noted but not computed here.
+  let profitBeforeTax = tradeProfit
+  if (totals.chargeableGains > 0) {
+    if (rules.id === 'NTA2025') {
+      if (classification.isSmall) {
+        lines.push({ label: 'Chargeable gains on asset disposals', amount: 0, note: 'small company — fully exempt from CGT' })
+      } else {
+        profitBeforeTax = round2(tradeProfit + totals.chargeableGains)
+        lines.push({ label: 'Add: chargeable gains on asset disposals', amount: totals.chargeableGains, note: 'taxed at the corporate rate — CGT folded into CIT by NTA 2025' })
+      }
+    } else {
+      lines.push({ label: 'Chargeable gains on disposals', amount: 0, note: 'old-law 10% CGT was a separate assessment — excluded from this CIT comparison schedule' })
+    }
+  }
   lines.push({ label: 'Assessable profit', amount: profitBeforeTax, strong: true })
 
   let citRate = rules.cit.standardRate
@@ -274,8 +301,12 @@ export function pitComputation(
   rules: RuleSet
 ): { lines: TaxLine[]; breakdown: PITBreakdown[]; tax: number; netPayable: number } {
   const profit = round2(Math.max(0, totals.turnover - totals.deductibleExpenses - totals.nonDeductibleAddBacks))
-  const relief = rules.pitRelief.kind === 'rent_relief' ? rentRelief(profile.rentPaidByOwner, rules) : cra(profit)
-  const chargeable = round2(Math.max(0, profit - relief))
+  // NTA 2025 taxes individuals' chargeable gains at their PIT bands (10% CGT abolished);
+  // under the repealed regime 10% CGT was separate — noted but not mixed in.
+  const gains = rules.id === 'NTA2025' ? totals.chargeableGains : 0
+  const totalIncome = round2(profit + gains)
+  const relief = rules.pitRelief.kind === 'rent_relief' ? rentRelief(profile.rentPaidByOwner, rules) : cra(totalIncome)
+  const chargeable = round2(Math.max(0, totalIncome - relief))
   const { breakdown, total } = pitOn(chargeable, rules)
   const netPayable = round2(Math.max(0, total - totals.whtSuffered))
 
@@ -285,8 +316,14 @@ export function pitComputation(
   ]
   if (totals.nonDeductibleAddBacks > 0)
     lines.push({ label: 'Capital / non-deductible items (excluded)', amount: -totals.nonDeductibleAddBacks })
+  lines.push({ label: 'Profit chargeable to PIT', amount: profit, strong: true })
+  if (totals.chargeableGains > 0)
+    lines.push(
+      rules.id === 'NTA2025'
+        ? { label: 'Add: chargeable gains on asset disposals', amount: gains, note: 'individuals\' gains taxed at PIT bands under NTA 2025 (10% CGT abolished)' }
+        : { label: 'Chargeable gains on disposals', amount: 0, note: 'old-law 10% CGT was a separate assessment — excluded from this comparison' }
+    )
   lines.push(
-    { label: 'Profit chargeable to PIT', amount: profit, strong: true },
     {
       label: rules.pitRelief.kind === 'rent_relief' ? 'Rent relief (lower of 20% of rent paid or ₦500k)' : 'Consolidated Relief Allowance (repealed)',
       amount: -relief,
@@ -332,20 +369,28 @@ export function monthlyVAT(transactions: Transaction[], year: number, rules: Rul
 
 export function payeFor(emp: Employee, rules: RuleSet): PayeResult {
   const pension = emp.pension ? emp.annualGross * 0.08 : 0
+  // NHF: 2.5% of basic salary is statutory-relief territory; MSME simplification → 2.5% of gross.
+  const nhf = emp.nhf ? emp.annualGross * 0.025 : 0
+  const nhis = emp.nhisAmount || 0
+  const bik = emp.benefitsInKind || 0 // non-cash benefits are taxable — added before reliefs
   // NTA 2025: an individual (employee included) gets rent relief — lower of 20% of rent paid or ₦500k.
   // Employers apply it in PAYE when the employee's rent is declared; otherwise it is lost until refund.
   const relief = rentRelief(emp.annualRent ?? 0, rules)
-  const chargeable = round2(Math.max(0, emp.annualGross - pension - relief))
+  const chargeable = round2(Math.max(0, emp.annualGross + bik - pension - nhf - nhis - relief))
   const { total } = pitOn(chargeable, rules)
   const monthlyTax = round2(total / 12)
   return {
     employee: emp,
     pensionAmount: round2(pension),
+    nhfAmount: round2(nhf),
+    nhisAmount: round2(nhis),
+    bikAmount: round2(bik),
     rentReliefApplied: relief,
     chargeable,
     annualTax: total,
     monthlyTax,
-    netMonthly: round2(emp.annualGross / 12 - pension / 12 - monthlyTax),
+    // take-home: cash gross minus cash statutory deductions & tax (BIK is non-cash → not received anyway)
+    netMonthly: round2(emp.annualGross / 12 - pension / 12 - nhf / 12 - nhis / 12 - monthlyTax),
   }
 }
 

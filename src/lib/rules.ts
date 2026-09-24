@@ -58,6 +58,8 @@ export interface RuleSet {
   thresholds: {
     vatNote: string
   }
+  /** how chargeable gains (asset disposals) are treated under this rule set */
+  cgtNote: string
 }
 
 export const NTA2025: RuleSet = {
@@ -106,6 +108,8 @@ export const NTA2025: RuleSet = {
   thresholds: {
     vatNote: 'NTA 2025 relieves qualifying small businesses from VAT registration & collection',
   },
+  cgtNote:
+    'Chargeable gains on asset disposals: small companies are fully exempt; other companies\' gains are taxed with profits at the corporate 30% rate (stand-alone 10% CGT abolished); individuals\' gains enter their PIT bands.',
 }
 
 export const FA2021: RuleSet = {
@@ -152,6 +156,8 @@ export const FA2021: RuleSet = {
   thresholds: {
     vatNote: '₦25m VAT registration threshold',
   },
+  cgtNote:
+    'Repealed regime: stand-alone 10% Capital Gains Tax on net chargeable gains (small companies not exempt under the old small-company definition).',
 }
 
 export const RULESETS: Record<RuleId, RuleSet> = { NTA2025, FA2021 }
@@ -221,10 +227,16 @@ export interface CategoryPreset {
   vat: 'standard' | 'zero_rated' | 'exempt' | 'non_vatable'
   whtKey: string | null
   hint: string
+  /** proceeds are capital disposals — excluded from trade turnover, taxed as chargeable gains */
+  isDisposal?: boolean
 }
+
+/** canonical disposal category (single source of truth for the engine & forms) */
+export const DISPOSAL_CATEGORY = 'Disposal of a capital asset (land, vehicle, equipment, shares)'
 
 export const INCOME_CATEGORIES: CategoryPreset[] = [
   { name: 'Product / goods sales', vat: 'standard', whtKey: 'supplies', hint: 'Standard-rated 7.5% unless food staples' },
+  { name: DISPOSAL_CATEGORY, vat: 'non_vatable', whtKey: null, hint: 'Proceeds are NOT trade turnover — gain taxed as a chargeable gain (small companies fully exempt)', isDisposal: true },
   { name: 'Food staples & unprocessed agro produce', vat: 'zero_rated', whtKey: 'supplies', hint: '0% VAT under NTA 2025' },
   { name: 'General services rendered', vat: 'standard', whtKey: 'services', hint: 'Customer withholds 2%' },
   { name: 'Professional / consultancy fees', vat: 'standard', whtKey: 'professional', hint: 'Customer withholds 5%' },

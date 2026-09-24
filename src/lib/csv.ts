@@ -1,7 +1,29 @@
 import { Transaction, VatTreatment } from './types'
+import { DISPOSAL_CATEGORY } from './rules'
 import { uid } from './format'
 
-const HEAD = 'date,type,category,description,amount,vat,wht_rate,party_name,party_has_tin,non_deductible'
+const HEAD = 'date,type,category,description,amount,vat,wht_rate,party_name,party_has_tin,non_deductible,cost_basis,is_disposal'
+
+/** quote-aware CSV line splitter (handles "quoted, commas" and "" escapes) */
+export function splitCSVLine(line: string): string[] {
+  const out: string[] = []
+  let cur = ''
+  let inQ = false
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i]
+    if (inQ) {
+      if (c === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++ } else inQ = false
+      } else cur += c
+    } else {
+      if (c === '"') inQ = true
+      else if (c === ',') { out.push(cur); cur = '' }
+      else cur += c
+    }
+  }
+  out.push(cur)
+  return out.map((s) => s.trim())
+}
 
 export function transactionsToCSV(txs: Transaction[]): string {
   const esc = (s: string) => `"${s.replaceAll('"', '""')}"`
@@ -9,7 +31,7 @@ export function transactionsToCSV(txs: Transaction[]): string {
     [
       t.date, t.type, esc(t.category), esc(t.description), t.amount,
       t.vat, t.whtRate ?? 0, esc(t.partyName ?? ''), t.partyHasTIN ? 'yes' : 'no',
-      t.nonDeductible ? 'yes' : 'no',
+      t.nonDeductible ? 'yes' : 'no', t.costBasis ?? 0, t.isDisposal ? 'yes' : 'no',
     ].join(',')
   )
   return [HEAD, ...rows].join('\n')
@@ -21,32 +43,11 @@ export function parseTransactionsCSV(text: string): { txs: Transaction[]; errors
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0)
   if (lines.length === 0) return { txs, errors: ['File is empty'] }
 
-  // naive-but-safe CSV: handles quoted commas
-  const split = (line: string): string[] => {
-    const out: string[] = []
-    let cur = ''
-    let inQ = false
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i]
-      if (inQ) {
-        if (c === '"') {
-          if (line[i + 1] === '"') { cur += '"'; i++ } else inQ = false
-        } else cur += c
-      } else {
-        if (c === '"') inQ = true
-        else if (c === ',') { out.push(cur); cur = '' }
-        else cur += c
-      }
-    }
-    out.push(cur)
-    return out.map((s) => s.trim())
-  }
-
   const data = lines[0].toLowerCase().includes('date') ? lines.slice(1) : lines
   data.forEach((line, idx) => {
-    const c = split(line)
+    const c = splitCSVLine(line)
     if (c.length < 5) { errors.push(`Row ${idx + 2}: not enough columns`); return }
-    const [date, type, category, description, amountS, vatS, whtS, party, tinSu, ndS] = c
+    const [date, type, category, description, amountS, vatS, whtS, party, tinSu, ndS, cbS, dispS] = c
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { errors.push(`Row ${idx + 2}: date must be yyyy-mm-dd`); return }
     if (type !== 'income' && type !== 'expense') { errors.push(`Row ${idx + 2}: type must be income|expense`); return }
     const amount = Number(amountS)
@@ -54,10 +55,11 @@ export function parseTransactionsCSV(text: string): { txs: Transaction[]; errors
     const vat: VatTreatment = (['standard', 'zero_rated', 'exempt', 'non_vatable'] as const).includes(vatS as VatTreatment)
       ? (vatS as VatTreatment)
       : 'standard'
+    const isDisposal = (dispS || '').toLowerCase() === 'yes'
     txs.push({
       id: uid(),
       date, type,
-      category: category || 'Other',
+      category: category || (isDisposal ? DISPOSAL_CATEGORY : 'Other'),
       description: description || '',
       amount,
       vat,
@@ -65,6 +67,8 @@ export function parseTransactionsCSV(text: string): { txs: Transaction[]; errors
       partyName: party || '',
       partyHasTIN: (tinSu || 'yes').toLowerCase() !== 'no',
       nonDeductible: (ndS || 'no').toLowerCase() === 'yes',
+      costBasis: Number(cbS) > 0 ? Number(cbS) : 0,
+      isDisposal,
     })
   })
   return { txs, errors }

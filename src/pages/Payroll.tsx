@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore, useEngine, useEntitlements } from '../state/store'
-import { payeFor } from '../lib/engine'
+import { payeFor, pitOn } from '../lib/engine'
 import { naira, uid } from '../lib/format'
 import { genericCSV, download } from '../lib/csv'
 import { PageHead, Notice, EmptyState, Icon, Stat } from '../components/ui'
@@ -10,7 +10,7 @@ export default function Payroll() {
   const { state, dispatch } = useStore()
   const { rules, rulesOld } = useEngine()
   const ent = useEntitlements()
-  const [form, setForm] = useState({ name: '', role: '', annualGross: '', annualRent: '', pension: true })
+  const [form, setForm] = useState({ name: '', role: '', annualGross: '', annualRent: '', bik: '', nhis: '', pension: true, nhf: false })
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const atLimit = state.employees.length >= ent.limits.employees
 
@@ -22,9 +22,14 @@ export default function Payroll() {
   const add = () => {
     const g = Number(form.annualGross.replace(/,/g, ''))
     const rent = Number((form.annualRent || '0').replace(/,/g, '')) || 0
+    const bik = Number((form.bik || '0').replace(/,/g, '')) || 0
+    const nhis = Number((form.nhis || '0').replace(/,/g, '')) || 0
     if (!form.name || !g || atLimit) return
-    dispatch({ type: 'addEmployee', e: { id: uid(), name: form.name, role: form.role || 'Staff', annualGross: g, pension: form.pension, annualRent: rent } })
-    setForm({ name: '', role: '', annualGross: '', annualRent: '', pension: true })
+    dispatch({
+      type: 'addEmployee',
+      e: { id: uid(), name: form.name, role: form.role || 'Staff', annualGross: g, pension: form.pension, annualRent: rent, nhf: form.nhf, nhisAmount: nhis, benefitsInKind: bik },
+    })
+    setForm({ name: '', role: '', annualGross: '', annualRent: '', bik: '', nhis: '', pension: true, nhf: false })
   }
 
   const markFiled = (kind: 'PAYE' | 'PAYE_ANNUAL') => {
@@ -37,8 +42,8 @@ export default function Payroll() {
     download(
       `paye-schedule-${state.year}.csv`,
       genericCSV(
-        ['employee', 'role', 'annual_gross', 'pension_8%', 'annual_rent', 'rent_relief', 'chargeable_income', 'annual_paye', 'monthly_paye', 'net_monthly'],
-        results.map((r) => [r.employee.name, r.employee.role, r.employee.annualGross, r.pensionAmount, r.employee.annualRent ?? 0, r.rentReliefApplied, r.chargeable, r.annualTax, r.monthlyTax, r.netMonthly])
+        ['employee', 'role', 'annual_gross', 'benefits_in_kind', 'pension_8%', 'nhf_2.5%', 'nhis', 'annual_rent', 'rent_relief', 'chargeable_income', 'annual_paye', 'monthly_paye', 'net_monthly'],
+        results.map((r) => [r.employee.name, r.employee.role, r.employee.annualGross, r.bikAmount, r.pensionAmount, r.nhfAmount, r.nhisAmount, r.employee.annualRent ?? 0, r.rentReliefApplied, r.chargeable, r.annualTax, r.monthlyTax, r.netMonthly])
       )
     )
   }
@@ -75,21 +80,35 @@ export default function Payroll() {
 
       <div className="card card-pad mb16 no-print">
         <h3 className="card-title">Add employee</h3>
-        <div className="frow" style={{ gridTemplateColumns: '1.8fr 1.3fr 1.35fr 1.25fr 1.25fr 0.7fr', gap: 12, alignItems: 'end' }}>
+        <div className="frow" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, alignItems: 'end' }}>
           <div><label className="lab">Full name</label><input className="inp" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Tunde Bello" /></div>
           <div><label className="lab">Role</label><input className="inp" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="Sales rep" /></div>
           <div><label className="lab">Annual gross salary (₦)</label><input className="inp mono" value={form.annualGross} onChange={(e) => setForm({ ...form, annualGross: e.target.value })} placeholder="1,200,000" /></div>
+          <div>
+            <label className="lab">Benefits-in-kind (₦/yr)</label>
+            <input className="inp mono" value={form.bik} onChange={(e) => setForm({ ...form, bik: e.target.value })} placeholder="0 — housing, car…" />
+          </div>
           <div>
             <label className="lab">Annual rent paid (₦)</label>
             <input className="inp mono" value={form.annualRent} onChange={(e) => setForm({ ...form, annualRent: e.target.value })} placeholder="0 (optional)" />
             <div className="hint" style={{ marginTop: 2 }}>Rent relief: 20% of rent, max ₦500k.</div>
           </div>
           <div>
-            <label className="lab">Pension (8% relief)</label>
-            <select className="inp" value={form.pension ? 'yes' : 'no'} onChange={(e) => setForm({ ...form, pension: e.target.value === 'yes' })}>
-              <option value="yes">Deducted</option>
-              <option value="no">N/A</option>
-            </select>
+            <label className="lab">NHIS / health premium (₦/yr)</label>
+            <input className="inp mono" value={form.nhis} onChange={(e) => setForm({ ...form, nhis: e.target.value })} placeholder="0 (optional)" />
+          </div>
+          <div>
+            <label className="lab">Pension (8%) · NHF (2.5%)</label>
+            <div className="row" style={{ gap: 6 }}>
+              <select className="inp" value={form.pension ? 'yes' : 'no'} onChange={(e) => setForm({ ...form, pension: e.target.value === 'yes' })}>
+                <option value="yes">Pension ✓</option>
+                <option value="no">Pension ✗</option>
+              </select>
+              <select className="inp" value={form.nhf ? 'yes' : 'no'} onChange={(e) => setForm({ ...form, nhf: e.target.value === 'yes' })}>
+                <option value="no">NHF ✗</option>
+                <option value="yes">NHF ✓</option>
+              </select>
+            </div>
           </div>
           <div>
             {atLimit ? (
@@ -113,17 +132,24 @@ export default function Payroll() {
             <p className="card-sub">Monthly deduction per employee for the remittance due on the 10th.</p>
             <div style={{ overflowX: 'auto' }}>
               <table className="tbl">
-                <thead><tr><th>Employee</th><th>Role</th><th className="num">Annual gross</th><th className="num">Pension 8%</th><th className="num">Rent relief</th><th className="num">Chargeable</th><th className="num">Annual PAYE</th><th className="num">Monthly PAYE</th><th className="num">Take-home /mo</th><th className="num">Rate</th><th className="no-print" /></tr></thead>
+                <thead><tr><th>Employee</th><th>Role</th><th className="num">Annual gross</th><th className="num">BIK</th><th className="num">Reliefs</th><th className="num">Chargeable</th><th className="num">Annual PAYE</th><th className="num">Monthly PAYE</th><th className="num">Take-home /mo</th><th className="num">Rate</th><th className="no-print" /></tr></thead>
                 <tbody>
                   {results.map((r) => {
                     const eff = r.chargeable > 0 ? r.annualTax / r.chargeable : 0
+                    const reliefs = r.pensionAmount + r.nhfAmount + r.nhisAmount + r.rentReliefApplied
+                    const reliefTip = [
+                      r.pensionAmount ? `pension ${naira(r.pensionAmount)}` : '',
+                      r.nhfAmount ? `NHF ${naira(r.nhfAmount)}` : '',
+                      r.nhisAmount ? `NHIS ${naira(r.nhisAmount)}` : '',
+                      r.rentReliefApplied ? `rent relief ${naira(r.rentReliefApplied)}` : '',
+                    ].filter(Boolean).join(' · ')
                     return (
                       <tr key={r.employee.id}>
                         <td style={{ fontWeight: 650 }}>{r.employee.name}</td>
                         <td className="small dim">{r.employee.role}</td>
                         <td className="num">{naira(r.employee.annualGross)}</td>
-                        <td className="num dim">{r.pensionAmount ? naira(r.pensionAmount) : '—'}</td>
-                        <td className="num dim" title={r.employee.annualRent ? `rent paid ${naira(r.employee.annualRent)}/yr` : 'no rent declared'}>{r.rentReliefApplied ? naira(r.rentReliefApplied) : '—'}</td>
+                        <td className="num dim">{r.bikAmount ? naira(r.bikAmount) : '—'}</td>
+                        <td className="num dim" title={reliefTip || 'no reliefs'}>{reliefs ? naira(reliefs) : '—'}</td>
                         <td className="num">{naira(r.chargeable)}</td>
                         <td className="num">{naira(r.annualTax)}</td>
                         <td className="num" style={{ fontWeight: 700, color: 'var(--green-800)' }}>{naira(r.monthlyTax)}</td>
@@ -145,28 +171,19 @@ export default function Payroll() {
             <FeatureGate feature="law_compare" label="Old law vs NTA 2025 payroll comparison" compact>
             <div className="card card-pad">
               <h3 className="card-title">Old law vs NTA 2025 — what changed for your staff</h3>
-              <p className="card-sub">First ₦800k now tax-free; CRA replaced by rent relief — applied in PAYE whenever an employee's annual rent is declared (old law shown with CRA + pension relief).</p>
+              <p className="card-sub">First ₦800k now tax-free; CRA replaced by rent relief — pension, NHF (2.5%) and NHIS premiums stay deductible under both regimes (old law shown with CRA on top).</p>
               <table className="tbl">
                 <thead><tr><th>Employee</th><th className="num">Old-law PAYE/yr</th><th className="num">NTA 2025 PAYE/yr</th><th className="num">Staff saving</th></tr></thead>
                 <tbody>
                   {state.employees.map((e) => {
                     const nw = payeFor(e, rules)
-                    // old law: CRA applied (higher of ₦200k or 1% of gross, + 20% of gross)
-                    const craOld = Math.max(200_000, e.annualGross * 0.01) + e.annualGross * 0.2
+                    // repealed law: gross + BIK − pension − NHF − NHIS − CRA(higher of ₦200k/1%, +20%), old bands
                     const pension = e.pension ? e.annualGross * 0.08 : 0
-                    const oldChargeable = Math.max(0, e.annualGross - pension - craOld)
-                    const oldProper = ((): number => {
-                      let rem = oldChargeable, lower = 0, tot = 0
-                      for (const b of rulesOld.pitBands) {
-                        if (rem <= 0) break
-                        const w = b.upto === Infinity ? Infinity : b.upto - lower
-                        const inB = Math.min(rem, w)
-                        tot += inB * b.rate
-                        rem -= inB
-                        lower = b.upto
-                      }
-                      return Math.round(tot * 100) / 100
-                    })()
+                    const nhf = e.nhf ? e.annualGross * 0.025 : 0
+                    const grossBIK = e.annualGross + (e.benefitsInKind || 0)
+                    const craOld = Math.max(200_000, grossBIK * 0.01) + grossBIK * 0.2
+                    const oldChargeable = Math.max(0, grossBIK - pension - nhf - (e.nhisAmount || 0) - craOld)
+                    const oldProper = pitOn(oldChargeable, rulesOld).total
                     const saving = oldProper - nw.annualTax
                     return (
                       <tr key={e.id}>

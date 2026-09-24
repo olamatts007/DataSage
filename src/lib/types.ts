@@ -40,7 +40,7 @@ export interface Transaction {
   type: TxType
   category: string
   description: string
-  /** VAT-exclusive base amount in naira */
+  /** VAT-exclusive base amount in naira (for disposals: the gross proceeds) */
   amount: number
   vat: VatTreatment
   /** WHT rate (0-1) applied at source: income → suffered (credit); expense → deducted (payable) */
@@ -49,6 +49,11 @@ export interface Transaction {
   partyHasTIN: boolean
   /** expense is capital or otherwise non-deductible → added back in tax computation */
   nonDeductible: boolean
+  /** income is proceeds from disposing a CHARGEABLE ASSET (land, vehicle, equipment, shares).
+   *  Not trade turnover — the ₦100m small-company test must exclude it (NTA 2025, CGT rules). */
+  isDisposal: boolean
+  /** original cost of a disposed chargeable asset → gain = amount − costBasis */
+  costBasis: number
 }
 
 export interface Employee {
@@ -60,6 +65,12 @@ export interface Employee {
   pension: boolean
   /** annual rent paid by the employee — entitles them to NTA 2025 rent relief (0 if none/unknown) */
   annualRent: number
+  /** NHF contribution (2.5% modelled on gross — payroll-relief under both rule sets) */
+  nhf: boolean
+  /** annual NHIS/health-insurance premiums paid (deductible) */
+  nhisAmount: number
+  /** annual taxable value of non-cash benefits (housing, car, etc.) — ADDED to gross */
+  benefitsInKind: number
 }
 
 export type FilingType = 'PAYE' | 'VAT' | 'WHT' | 'CIT' | 'PIT' | 'PAYE_ANNUAL'
@@ -98,6 +109,10 @@ export interface AnnualTotals {
   standardRatedExpense: number
   zeroRatedIncome: number
   exemptIncome: number
+  /** proceeds from disposals of chargeable assets (excluded from turnover) */
+  disposalProceeds: number
+  /** net chargeable gains on those disposals (floored at 0) */
+  chargeableGains: number
 }
 
 export interface Classification {
@@ -143,6 +158,11 @@ export interface PayeResult {
   employee: Employee
   /** pension (8%) deducted before bands */
   pensionAmount: number
+  /** NHF (2.5% modelled) + NHIS premiums deducted before bands */
+  nhfAmount: number
+  nhisAmount: number
+  /** non-cash benefits ADDED to gross before reliefs */
+  bikAmount: number
   /** NTA 2025 rent relief applied (0 under repealed law or when no rent declared) */
   rentReliefApplied: number
   chargeable: number

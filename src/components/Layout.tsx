@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useStore, useEngine, useEntitlements } from '../state/store'
+import { uid } from '../lib/format'
 import { Icon } from './ui'
 import { PlanBadge } from './paywall'
 
@@ -59,10 +60,12 @@ function SidePlanTile() {
 }
 
 export function Layout({ children, route }: { children: React.ReactNode; route: string }) {
-  const { state, loadSample, reset } = useStore()
+  const { state, dispatch, loadSample, reset } = useStore()
   const { classification } = useEngine()
   const [menu, setMenu] = useState(false)
+  const [wsMenu, setWsMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const wsMenuRef = useRef<HTMLDivElement>(null)
   const allItems = ROUTES.flatMap((g) => g.items.map((i) => ({ ...i, group: g.group })))
   const page = allItems.find((i) => i.hash === route)
   const isCompany = state.profile.structure === 'limited_company'
@@ -78,6 +81,22 @@ export function Layout({ children, route }: { children: React.ReactNode; route: 
     document.addEventListener('keydown', onKey)
     return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey) }
   }, [menu])
+
+  useEffect(() => {
+    if (!wsMenu) return
+    const onDoc = (e: MouseEvent) => {
+      if (wsMenuRef.current && !wsMenuRef.current.contains(e.target as Node)) setWsMenu(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setWsMenu(false) }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey) }
+  }, [wsMenu])
+
+  const wsName = (id: string) =>
+    id === state.activeWorkspaceId
+      ? state.profile.name || 'Untitled business'
+      : state.workspacesData[id]?.profile?.name || 'Untitled business'
 
   const businessChip = state.profile.name
     ? state.profile.name
@@ -125,8 +144,49 @@ export function Layout({ children, route }: { children: React.ReactNode; route: 
           <div className="spacer" />
           <div className="tb-right">
             <PlanBadge />
+            <div style={{ position: 'relative' }} ref={wsMenuRef}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setWsMenu((m) => !m)} aria-expanded={wsMenu} aria-haspopup="menu" title="Switch business workspace">
+                <Icon name="building" size={13} /> {businessChip} <Icon name="chevron" size={12} />
+              </button>
+              {wsMenu && (
+                <div className="card scenario-menu" role="menu">
+                  <div className="menu-label">Businesses on this device {state.workspaces.length > 1 && `(${state.workspaces.length})`}</div>
+                  {state.workspaces.map((w) => {
+                    const active = w.id === state.activeWorkspaceId
+                    return (
+                      <div key={w.id} className="row" style={{ gap: 6 }}>
+                        <button
+                          className={`btn ${active ? 'btn-primary' : 'btn-ghost'} btn-sm`}
+                          style={{ flex: 1, justifyContent: 'flex-start' }}
+                          onClick={() => { dispatch({ type: 'switchWorkspace', id: w.id }); setWsMenu(false) }}
+                        >
+                          {active ? <Icon name="check" size={12} /> : <Icon name="building" size={12} />} {wsName(w.id)}
+                        </button>
+                        {!active && (
+                          <button
+                            className="btn btn-danger btn-sm"
+                            title="Delete this workspace"
+                            onClick={() => {
+                              if (window.confirm(`Delete the workspace “${wsName(w.id)}” and all its records? This cannot be undone.`)) {
+                                dispatch({ type: 'deleteWorkspace', id: w.id })
+                              }
+                            }}
+                          >
+                            <Icon name="trash" size={12} />
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                  <div className="menu-label">Accountant mode</div>
+                  <button className="btn btn-gold btn-sm" onClick={() => { dispatch({ type: 'addWorkspace', id: uid() }); setWsMenu(false); window.location.hash = '#/profile' }}>
+                    <Icon name="plus" size={12} /> New business workspace
+                  </button>
+                </div>
+              )}
+            </div>
             <span className={`chip ${classification.isSmall ? 'green' : 'blue'}`} title="Tax classification">
-              {businessChip} · {classification.isSmall ? 'SMALL — 0% CIT' : isCompany ? 'STANDARD' : state.profile.structure.replace('_', ' ').toUpperCase()}
+              {classification.isSmall ? 'SMALL — 0% CIT' : isCompany ? 'STANDARD' : state.profile.structure.replace('_', ' ').toUpperCase()}
             </span>
             <span className="chip dark">FY {state.year}</span>
             <div style={{ position: 'relative' }} ref={menuRef}>
@@ -135,7 +195,7 @@ export function Layout({ children, route }: { children: React.ReactNode; route: 
               </button>
               {menu && (
                 <div className="card scenario-menu" role="menu">
-                  <div className="menu-label">Load demo data</div>
+                  <div className="menu-label">Load demo data (into active workspace)</div>
                   <button className="btn btn-ghost btn-sm" onClick={() => { loadSample('small'); setMenu(false) }}>🍲 Small foods company — ₦42m · 0% CIT</button>
                   <button className="btn btn-ghost btn-sm" onClick={() => { loadSample('standard'); setMenu(false) }}>🏬 Trading company — ₦160m · 30% CIT</button>
                   <button className="btn btn-ghost btn-sm" onClick={() => { loadSample('soleprop'); setMenu(false) }}>🎨 Sole proprietor — PIT + rent relief</button>

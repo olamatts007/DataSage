@@ -1,5 +1,5 @@
 import { AppState, Employee, Transaction } from './types'
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from './rules'
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES, DISPOSAL_CATEGORY } from './rules'
 import { uid } from './format'
 
 function tx(
@@ -20,6 +20,8 @@ function tx(
     partyName: opts.partyName ?? '',
     partyHasTIN: opts.partyHasTIN ?? true,
     nonDeductible: opts.nonDeductible ?? false,
+    isDisposal: opts.isDisposal ?? (preset?.isDisposal ?? false),
+    costBasis: opts.costBasis ?? 0,
   }
 }
 
@@ -44,9 +46,9 @@ export function smallFoodsScenario(): AppState {
   t.push(tx('2026-06-11', 'expense', 'Professional fees paid (legal, audit)', 'External accountant retainer', 350_000, { partyName: 'BrightBooks Advisory' }))
 
   const employees: Employee[] = [
-    { id: uid(), name: 'Adaeze Nwosu', role: 'Managing Director', annualGross: 4_800_000, pension: true, annualRent: 1_800_000 },
-    { id: uid(), name: 'Tunde Bello', role: 'Production lead', annualGross: 1_920_000, pension: true, annualRent: 600_000 },
-    { id: uid(), name: 'Chiamaka Eze', role: 'Sales & logistics', annualGross: 1_440_000, pension: true, annualRent: 450_000 },
+    { id: uid(), name: 'Adaeze Nwosu', role: 'Managing Director', annualGross: 4_800_000, pension: true, annualRent: 1_800_000, nhf: true, nhisAmount: 85_000, benefitsInKind: 0 },
+    { id: uid(), name: 'Tunde Bello', role: 'Production lead', annualGross: 1_920_000, pension: true, annualRent: 600_000, nhf: true, nhisAmount: 40_000, benefitsInKind: 0 },
+    { id: uid(), name: 'Chiamaka Eze', role: 'Sales & logistics', annualGross: 1_440_000, pension: true, annualRent: 450_000, nhf: false, nhisAmount: 0, benefitsInKind: 0 },
   ]
 
   return {
@@ -90,13 +92,15 @@ export function standardTradingScenario(): AppState {
   })
   t.push(tx('2026-02-01', 'expense', 'Rent paid', 'Showroom & office rent (annual)', 9_600_000, { partyName: 'EstateDev', whtRate: 0.10 }))
   t.push(tx('2026-05-14', 'expense', 'Purchase of fixed assets (capital)', 'Delivery vans (2)', 24_000_000, { partyName: 'AutoCorp', nonDeductible: true, whtRate: 0.02 }))
+  // chargeable disposal — proceeds excluded from turnover; gain taxed WITH profits at 30% (NTA 2025)
+  t.push(tx('2026-05-20', 'income', DISPOSAL_CATEGORY, 'Sold old delivery truck (replaced by new vans)', 8_500_000, { partyName: 'Musa Haulage', costBasis: 5_200_000 }))
 
   const employees: Employee[] = [
-    { id: uid(), name: 'Ibrahim Danladi', role: 'CEO', annualGross: 12_000_000, pension: true, annualRent: 4_000_000 },
-    { id: uid(), name: 'Funke Ogunleye', role: 'Finance manager', annualGross: 6_000_000, pension: true, annualRent: 1_800_000 },
-    { id: uid(), name: 'Emeka Obi', role: 'Sales manager', annualGross: 4_800_000, pension: true, annualRent: 1_200_000 },
-    { id: uid(), name: 'Ngozi Umeh', role: 'Customer support', annualGross: 1_800_000, pension: true, annualRent: 500_000 },
-    { id: uid(), name: 'Suleiman Garba', role: 'Warehouse officer', annualGross: 1_500_000, pension: true, annualRent: 420_000 },
+    { id: uid(), name: 'Ibrahim Danladi', role: 'CEO', annualGross: 12_000_000, pension: true, annualRent: 4_000_000, nhf: true, nhisAmount: 220_000, benefitsInKind: 1_800_000 },
+    { id: uid(), name: 'Funke Ogunleye', role: 'Finance manager', annualGross: 6_000_000, pension: true, annualRent: 1_800_000, nhf: true, nhisAmount: 110_000, benefitsInKind: 0 },
+    { id: uid(), name: 'Emeka Obi', role: 'Sales manager', annualGross: 4_800_000, pension: true, annualRent: 1_200_000, nhf: true, nhisAmount: 85_000, benefitsInKind: 600_000 },
+    { id: uid(), name: 'Ngozi Umeh', role: 'Customer support', annualGross: 1_800_000, pension: true, annualRent: 500_000, nhf: true, nhisAmount: 40_000, benefitsInKind: 0 },
+    { id: uid(), name: 'Suleiman Garba', role: 'Warehouse officer', annualGross: 1_500_000, pension: true, annualRent: 420_000, nhf: false, nhisAmount: 0, benefitsInKind: 0 },
   ]
 
   return {

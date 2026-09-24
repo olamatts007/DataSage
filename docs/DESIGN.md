@@ -266,3 +266,43 @@ Inherited assumptions challenged, and what changed as a result.
 - **State-level PAYE variance** — engine uses the federal NTA bands; a few states publish administrative variations of form/process.
 - **No multi-user / accountant role** — single workspace per browser; sharing is via JSON backup transfer.
 - **NRS e-invoicing & portal integration** — must SDK for production filings; outputs remain preparation schedules.
+
+---
+
+## v3 additions (critic-review build)
+
+### Statement ingestion (`src/lib/ingest.ts` + `src/components/StatementImport.tsx`)
+Nigerian MSME records live in bank/fintech statements, not in typing marathons. The importer
+ships header-signature presets (Moniepoint, Kuda, GTBank, OPay/PalmPay, generic), a
+column-mapping wizard when detection fails, day-first flexible date parsing, and transparent
+keyword category suggestions (visible per row, user-overridable) — no opaque "AI", no silent
+imports. Near-duplicates (same date+amount+type as existing ledger rows) are pre-skipped.
+Imports respect free-tier record caps with truncation notice.
+
+### Multi-business workspaces (accountant mode)
+`PersistedState` holds a workspace registry; business-scoped payloads (profile, transactions,
+employees, filings, year, onboarded) hop between slots on switch. Subscription, payments,
+access codes and gate mode stay device-global. Migration turns any single-business install
+into `ws-main`. Delete is guarded (never active, never the last one) and confirm-gated.
+
+### Legal precision pass (full)
+- **Chargeable disposals**: new transaction flag `isDisposal` + `costBasis`. Proceeds are
+  excluded from trade turnover (so a one-off asset sale can't wrongly flip a business past
+  the ₦100m small-company ceiling); gains are taxed per rule set — NTA 2025: with profits at
+  30% for companies (10% CGT abolished), at PIT bands for individuals; small companies fully
+  exempt; old-law schedules note the separate 10% CGT instead of mis-folding.
+- **PAYE reliefs**: NHF (2.5% modelled on gross) and NHIS premiums deductible under both
+  regimes; benefits-in-kind added to gross before reliefs. Old-law comparison now routes
+  through the same `pitOn` engine with CRA on gross+BIK.
+- **Audit-honesty notices**: standard-company CIT workings carry a "capital allowances and
+  loss reliefs not modelled" caution; WHT small-company relief is described as conditional
+  on valid registration/TIN; 6-year record-retention duty surfaced in Backup UX and Records.
+
+### Presumptive taxation — design note (not yet built)
+Most informal-sector traders in Nigeria are assessed on presumptive/estimated bases set by
+state boards rather than on books. A v4 "Quick estimate" mode would: pick trade & stall-size
+band → produce an indicative annual PIT/PRESUMPTIVE figure with a strong caveat banner, and
+offer conversion to full bookkeeping as the upgrade path. Deliberately not built in v3:
+state presumptive rate tables vary and publishing hard numbers without verified schedules
+risks exactly the hallucination this project rejects. UI placeholder and data model
+(`presumptiveBand?: string`) should wait for a verified rule pack.

@@ -180,6 +180,7 @@ export default function Billing() {
               Your data lives <b>only in this browser</b> — nothing is uploaded to any server (privacy-friendly under the
               Nigeria Data Protection Act 2023, but means a cleared browser = lost books). Export a JSON backup regularly
               {state.lastBackupAt && <> — last backup <b>{new Date(state.lastBackupAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</b></>}.
+              NTAA 2025 expects books of account to be retained for up to <b>6 years</b> — keep a backup per year, across devices.
             </p>
             <div className="row wrap no-print">
               <button className="btn btn-primary btn-sm" onClick={exportBackup}><Icon name="download" size={13} /> Export backup (.json)</button>

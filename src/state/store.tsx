@@ -9,6 +9,18 @@ import { AccessCode, GateMode, mergeCodes } from '../lib/access'
 
 const KEY = 'taxsage.v1'
 
+/** minimal registry entry for one business's workspace */
+export interface WorkspaceMeta { id: string; createdAt: string }
+/** the per-business payload (everything that belongs to ONE business) */
+export interface WorkspaceData {
+  profile: BusinessProfile
+  transactions: Transaction[]
+  employees: Employee[]
+  filings: FilingRecord[]
+  year: number
+  onboarded: boolean
+}
+
 export interface PersistedState extends AppState {
   subscription: Subscription
   payments: Payment[]
@@ -19,7 +31,30 @@ export interface PersistedState extends AppState {
   gateOverride: boolean
   /** ISO timestamp of the last JSON backup export — '' = never backed up */
   lastBackupAt: string
+  /** multi-business workspaces (accountant mode) — subscription/access codes stay device-global */
+  workspaces: WorkspaceMeta[]
+  workspacesData: Record<string, WorkspaceData>
+  activeWorkspaceId: string
 }
+
+/** snapshot the business-scoped fields of the live state into a workspace record */
+function captureWs(s: PersistedState): WorkspaceData {
+  return {
+    profile: s.profile,
+    transactions: s.transactions,
+    employees: s.employees,
+    filings: s.filings,
+    year: s.year,
+    onboarded: s.onboarded,
+  }
+}
+
+const emptyWs = (): WorkspaceData => {
+  const e = emptyState()
+  return { profile: e.profile, transactions: [], employees: [], filings: [], year: e.year, onboarded: e.onboarded }
+}
+
+const MAIN_WS = 'ws-main'
 
 type Action =
   | { type: 'setProfile'; profile: Partial<BusinessProfile> }
@@ -44,6 +79,9 @@ type Action =
   | { type: 'seedProvision'; codes: AccessCode[]; gate: GateMode | null }
   | { type: 'setGateMode'; mode: GateMode }
   | { type: 'recordBackup' }
+  | { type: 'addWorkspace'; id: string }
+  | { type: 'switchWorkspace'; id: string }
+  | { type: 'deleteWorkspace'; id: string }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -113,6 +151,32 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       return { ...s, gateMode: a.mode, gateOverride: true }
     case 'recordBackup':
       return { ...s, lastBackupAt: now.toISOString() }
+
+    // ── workspaces (accountant mode): business data hops between slots ──────
+    case 'addWorkspace': {
+      const saved = { ...s.workspacesData, [s.activeWorkspaceId]: captureWs(s) }
+      const fresh = emptyWs()
+      return {
+        ...s,
+        ...fresh,
+        workspaces: [...s.workspaces, { id: a.id, createdAt: now.toISOString() }],
+        workspacesData: saved,
+        activeWorkspaceId: a.id,
+      }
+    }
+    case 'switchWorkspace': {
+      if (a.id === s.activeWorkspaceId || !s.workspaces.some((w) => w.id === a.id)) return s
+      const saved = { ...s.workspacesData, [s.activeWorkspaceId]: captureWs(s) }
+      const target = saved[a.id] ?? emptyWs()
+      return { ...s, ...target, workspacesData: saved, activeWorkspaceId: a.id }
+    }
+    case 'deleteWorkspace': {
+      // never delete the active or the last remaining workspace
+      if (a.id === s.activeWorkspaceId || s.workspaces.length <= 1) return s
+      const rest = { ...s.workspacesData }
+      delete rest[a.id]
+      return { ...s, workspaces: s.workspaces.filter((w) => w.id !== a.id), workspacesData: rest }
+    }
     case 'revokeAccessCode':
       return { ...s, accessCodes: s.accessCodes.map((c) => (c.id === a.id ? { ...c, revoked: true } : c)) }
     case 'activateAccessCode': {
@@ -175,10 +239,10 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     ...emptyState(),
     ...parsed,
     profile: { ...emptyState().profile, ...(parsed.profile ?? {}) },
-    transactions: parsed.transactions ?? [],
-    // schema migration: employees gained annualRent (NTA 2025 rent relief) in v2 —
-    // persisted records predating the field are backfilled with 0
-    employees: (parsed.employees ?? []).map((e) => ({ annualRent: 0, ...(e as Partial<Employee>) }) as Employee),
+    transactions: (parsed.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, ...(t as Partial<Transaction>) }) as Transaction),
+    // schema migration: employees gained annualRent/nhf/nhisAmount/benefitsInKind —
+    // persisted records predating the fields are backfilled with neutral values
+    employees: (parsed.employees ?? []).map((e) => ({ annualRent: 0, nhf: false, nhisAmount: 0, benefitsInKind: 0, ...(e as Partial<Employee>) }) as Employee),
     filings: parsed.filings ?? [],
     subscription: { ...FREE_SUB, ...(parsed.subscription ?? {}) },
     payments: parsed.payments ?? [],
@@ -186,6 +250,27 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     gateMode: parsed.gateMode ?? 'code',
     gateOverride: parsed.gateOverride ?? false,
     lastBackupAt: parsed.lastBackupAt ?? '',
+    // workspace migration: pre-v3 single-business installs become the MAIN slot;
+    // stored workspace payloads pass through the same field-level migration
+    workspaces: parsed.workspaces?.length ? parsed.workspaces : [{ id: MAIN_WS, createdAt: new Date().toISOString() }],
+    workspacesData: Object.fromEntries(
+      Object.entries(parsed.workspacesData ?? {}).map(([id, d]) => [
+        id,
+        {
+          ...d,
+          profile: { ...emptyState().profile, ...(d.profile ?? {}) },
+          transactions: (d.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, ...(t as Partial<Transaction>) }) as Transaction),
+          employees: (d.employees ?? []).map((e) => ({ annualRent: 0, nhf: false, nhisAmount: 0, benefitsInKind: 0, ...(e as Partial<Employee>) }) as Employee),
+          filings: d.filings ?? [],
+          year: d.year ?? emptyState().year,
+          onboarded: d.onboarded ?? false,
+        },
+      ])
+    ),
+    activeWorkspaceId:
+      parsed.activeWorkspaceId && parsed.workspaces?.some((w) => w.id === parsed.activeWorkspaceId)
+        ? parsed.activeWorkspaceId
+        : parsed.workspaces?.[0]?.id ?? MAIN_WS,
   }
 }
 

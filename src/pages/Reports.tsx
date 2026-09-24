@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore, useEngine, useEntitlements } from '../state/store'
-import { citComputation, pitComputation, monthlyVAT, payeFor } from '../lib/engine'
+import { citComputation, pitComputation, monthlyVAT, payeFor, fyWindow } from '../lib/engine'
 import { naira, fmtDate, monthName } from '../lib/format'
 import { genericCSV, download } from '../lib/csv'
 import { PageHead, Notice, Icon, PrintHeader, ReportFooter, EmptyState } from '../components/ui'
@@ -27,6 +27,12 @@ export default function Reports() {
   const whtDeducted = state.transactions.filter((t) => t.type === 'expense' && (t.whtRate || 0) > 0)
   const whtSuffered = state.transactions.filter((t) => t.type === 'income' && (t.whtRate || 0) > 0)
   const payeResults = state.employees.map((e) => payeFor(e, rules))
+
+  // chargeable disposals within the accounting window (NTA 2025 CGT schedule)
+  const { start: fyStart, end: fyEnd } = fyWindow(state.year, state.profile.fyEndMonth)
+  const disposals = state.transactions.filter(
+    (t) => t.isDisposal && t.type === 'income' && t.date >= fyStart && t.date <= fyEnd
+  )
 
   const basis = isCompany ? 'Nigeria Tax Act 2025 · CIT & Development Levy' : 'Nigeria Tax Act 2025 · Personal Income Tax'
 
@@ -121,6 +127,38 @@ export default function Reports() {
               ))}
             </div>
 
+            {disposals.length > 0 && (
+              <div className="mt16">
+                <h3 className="card-title">Chargeable disposals schedule</h3>
+                <p className="card-sub">Proceeds are excluded from turnover; the <b>gain</b> is taxed as shown in the workings above.</p>
+                <table className="tbl">
+                  <thead><tr><th>Date</th><th>Asset / narration</th><th className="num">Proceeds</th><th className="num">Cost basis</th><th className="num">Chargeable gain</th></tr></thead>
+                  <tbody>
+                    {disposals.map((t) => (
+                      <tr key={t.id}>
+                        <td className="mono" style={{ whiteSpace: 'nowrap' }}>{fmtDate(t.date)}</td>
+                        <td>{t.description}</td>
+                        <td className="num">{naira(t.amount)}</td>
+                        <td className="num dim">{naira(t.costBasis || 0)}</td>
+                        <td className="num" style={{ fontWeight: 700 }}>{naira(Math.max(0, t.amount - (t.costBasis || 0)))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="strong"><td colSpan={2}>Net position</td><td className="num">{naira(totals.disposalProceeds)}</td><td className="num dim">{naira(disposals.reduce((s, t) => s + (t.costBasis || 0), 0))}</td><td className="num">{naira(totals.chargeableGains)}</td></tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+
+            {!cls.isSmall && isCompany && (
+              <div className="mt16">
+                <Notice tone="amber" title="Simplified base — confirm before filing">
+                  Capital allowances, loss reliefs and other statutory adjustments are not modelled in this working schedule.
+                  Your audited accounts will adjust assessable profit before the final 30% + 4% computation on TaxPro-Max.
+                </Notice>
+              </div>
+            )}
             {cls.isSmall && isCompany && (
               <div className="mt16">
                 <Notice tone="green" title="0% assessed — filing is still mandatory">
