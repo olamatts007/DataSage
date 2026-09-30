@@ -76,6 +76,7 @@ export default function Records() {
         nonDeductible: form.type === 'expense' ? form.nonDeductible : false,
         isDisposal: form.type === 'income' ? form.isDisposal : false,
         costBasis: form.isDisposal ? costBasis : 0,
+        whtCertReceived: false,
       },
     })
     setForm((f) => ({ ...f, description: '', amount: '', partyName: '', costBasis: '' }))

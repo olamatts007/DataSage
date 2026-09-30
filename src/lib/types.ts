@@ -54,6 +54,39 @@ export interface Transaction {
   isDisposal: boolean
   /** original cost of a disposed chargeable asset → gain = amount − costBasis */
   costBasis: number
+  /** income with WHT suffered: has the customer issued the WHT credit note? (needed to claim the credit) */
+  whtCertReceived: boolean
+}
+
+// ── invoices (invoice-first workflow) ─────────────────────────────────────────
+
+export interface InvoiceItem {
+  id: string
+  description: string
+  qty: number
+  unitPrice: number // VAT-exclusive unit price
+  vat: VatTreatment // per-line treatment drives the VAT shown on the invoice
+}
+
+export type InvoiceStatus = 'draft' | 'issued' | 'paid'
+
+export interface Invoice {
+  id: string
+  /** human-facing sequential number, e.g. INV-2026-0007 */
+  number: string
+  issuedAt: string // ISO date
+  dueAt: string // ISO date or ''
+  customerName: string
+  customerTin: string
+  customerAddress: string
+  items: InvoiceItem[]
+  /** true only when the business is VAT-registered/required and charging 7.5% on standard lines */
+  vatApplied: boolean
+  notes: string
+  status: InvoiceStatus
+  /** true once posted into the ledger (one income tx per VAT-treatment group) */
+  postedToLedger: boolean
+  paidAt: string // ISO date or ''
 }
 
 export interface Employee {
@@ -89,6 +122,7 @@ export interface AppState {
   transactions: Transaction[]
   employees: Employee[]
   filings: FilingRecord[]
+  invoices: Invoice[]
   /** accounting year under review (e.g. 2026) */
   year: number
   onboarded: boolean

@@ -22,6 +22,7 @@ function tx(
     nonDeductible: opts.nonDeductible ?? false,
     isDisposal: opts.isDisposal ?? (preset?.isDisposal ?? false),
     costBasis: opts.costBasis ?? 0,
+    whtCertReceived: opts.whtCertReceived ?? false,
   }
 }
 
@@ -69,6 +70,7 @@ export function smallFoodsScenario(): AppState {
     transactions: t,
     employees,
     filings: [],
+    invoices: [],
     year: 2026,
     onboarded: true,
   }
@@ -121,6 +123,7 @@ export function standardTradingScenario(): AppState {
     transactions: t,
     employees,
     filings: [],
+    invoices: [],
     year: 2026,
     onboarded: true,
   }
@@ -160,6 +163,7 @@ export function solePropScenario(): AppState {
     transactions: t,
     employees: [],
     filings: [],
+    invoices: [],
     year: 2026,
     onboarded: true,
   }
@@ -184,6 +188,7 @@ export function emptyState(): AppState {
     transactions: [],
     employees: [],
     filings: [],
+    invoices: [],
     year: 2026,
     onboarded: false,
   }

@@ -11,6 +11,7 @@ export const ROUTES = [
     { hash: '#/calendar', icon: 'calendar', label: 'Filing Calendar' },
   ]},
   { group: 'Collate', items: [
+    { hash: '#/invoices', icon: 'receipt', label: 'Invoices' },
     { hash: '#/records', icon: 'records', label: 'Records Ledger' },
     { hash: '#/payroll', icon: 'payroll', label: 'Payroll (PAYE)' },
   ]},

@@ -10,6 +10,7 @@ import { checkCode, fetchProvisioned, isAdminAuthed, readAccessSession, writeAcc
 const Overview = lazy(() => import('./pages/Overview'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Records = lazy(() => import('./pages/Records'))
+const Invoices = lazy(() => import('./pages/Invoices'))
 const Payroll = lazy(() => import('./pages/Payroll'))
 const Engine = lazy(() => import('./pages/Engine'))
 const Reports = lazy(() => import('./pages/Reports'))
@@ -22,6 +23,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '#/overview': 'Overview',
   '#/profile': 'Business Profile',
   '#/records': 'Records Ledger',
+  '#/invoices': 'Invoices',
   '#/payroll': 'Payroll & PAYE',
   '#/engine': 'Tax Engine',
   '#/reports': 'Returns & Reports',
@@ -40,6 +42,7 @@ function Router({ route }: { route: string }) {
   switch (route) {
     case '#/profile': page = <Profile />; break
     case '#/records': page = <Records />; break
+    case '#/invoices': page = <Invoices />; break
     case '#/payroll': page = <Payroll />; break
     case '#/engine': page = <Engine />; break
     case '#/reports': page = <Reports />; break

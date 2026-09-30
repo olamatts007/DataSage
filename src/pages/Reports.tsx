@@ -9,7 +9,7 @@ import { FeatureGate, PremiumBanner, UpgradeModal } from '../components/paywall'
 type Tab = 'annual' | 'vat' | 'wht' | 'paye'
 
 export default function Reports() {
-  const { state } = useStore()
+  const { state, dispatch } = useStore()
   const { totals, classification: cls, rules } = useEngine()
   const ent = useEntitlements()
   const [tab, setTab] = useState<Tab>('annual')
@@ -288,9 +288,56 @@ export default function Reports() {
                 )}
               </div>
             </div>
+            {/* autopilot: credit-note chase-list — who still owes you a certificate */}
+            {whtSuffered.length > 0 && (
+              <div className="mt16">
+                <div className="lab" style={{ marginBottom: 5 }}>Credit-note chase-list — certificates to collect before assessment</div>
+                <table className="tbl">
+                  <thead><tr><th>Deducting customer</th><th className="num">Transactions</th><th className="num">WHT credit at stake</th><th>Status</th><th className="no-print" /></tr></thead>
+                  <tbody>
+                    {Object.entries(
+                      whtSuffered.reduce<Record<string, { n: number; wht: number; certIds: string[]; allCert: boolean }>>((acc, t) => {
+                        const k = t.partyName || 'Unknown customer'
+                        const cur = acc[k] ?? { n: 0, wht: 0, certIds: [], allCert: true }
+                        cur.n += 1
+                        cur.wht += t.amount * (t.whtRate || 0)
+                        if (t.whtCertReceived) cur.certIds.push(t.id)
+                        else cur.allCert = false
+                        acc[k] = cur
+                        return acc
+                      }, {})
+                    ).map(([party, g]) => (
+                      <tr key={party}>
+                        <td style={{ fontWeight: 650 }}>{party}</td>
+                        <td className="num dim">{g.n}</td>
+                        <td className="num" style={{ fontWeight: 700, color: g.allCert ? 'var(--green-700)' : 'var(--amber)' }}>{naira(g.wht)}</td>
+                        <td>{g.allCert ? <span className="chip green">all received ✓</span> : <span className="chip amber">chase credit note</span>}</td>
+                        <td className="no-print">
+                          {!g.allCert && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => {
+                              whtSuffered.filter((t) => (t.partyName || 'Unknown customer') === party && !t.whtCertReceived)
+                                .forEach((t) => dispatch({ type: 'updateTx', tx: { ...t, whtCertReceived: true } }))
+                            }}>
+                              <Icon name="check" size={12} /> Mark received
+                            </button>
+                          )}
+                          {g.allCert && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => {
+                              whtSuffered.filter((t) => (t.partyName || 'Unknown customer') === party)
+                                .forEach((t) => dispatch({ type: 'updateTx', tx: { ...t, whtCertReceived: false } }))
+                            }}>Undo</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="hint mt8">At stake: <b>{naira(whtSuffered.filter((t) => !t.whtCertReceived).reduce((s, t) => s + t.amount * (t.whtRate || 0), 0))}</b> in credits not yet evidenced by credit notes — these are routinely rejected at assessment.</div>
+              </div>
+            )}
             <div className="mt16">
               <Notice tone="amber">Issue a <b>credit note</b> to every payee within the month of deduction, and collect yours from every
-                customer — credits without the corresponding credit note are routinely rejected at assessment.</Notice>
+                customer — the chase-list above tracks exactly who still owes you one.</Notice>
             </div>
           </div>
           </FeatureGate>

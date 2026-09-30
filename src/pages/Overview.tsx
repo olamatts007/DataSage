@@ -1,6 +1,6 @@
 import React from 'react'
 import { useStore, useEngine } from '../state/store'
-import { complianceScore, generateDeadlines, monthlyVAT, urgency, citComputation, pitComputation } from '../lib/engine'
+import { complianceScore, generateDeadlines, monthlyVAT, urgency, citComputation, pitComputation, avoidedPenalties } from '../lib/engine'
 import { NTA2025 } from '../lib/rules'
 import { naira, kfmt, monthName } from '../lib/format'
 import { Stat, Notice, Meter, PageHead, Icon } from '../components/ui'
@@ -47,7 +47,46 @@ export default function Overview() {
         }
       />
 
+      {/* autopilot: most urgent obligation first — penalties are expensive */}
+      {(() => {
+        const pressing = deadlines.find((d) => ['overdue', 'due-soon'].includes(urgency(d.dueDate, now).kind))
+        if (!pressing) return null
+        const u = urgency(pressing.dueDate, now)
+        return (
+          <div className="mb16">
+            <Notice tone={u.kind === 'overdue' ? 'red' : 'amber'}
+              title={u.kind === 'overdue' ? `Overdue by ${u.days} day(s): ${pressing.title}` : `Due in ${u.days} day(s): ${pressing.title}`}>
+              {pressing.penaltyNote}. <a href="#/calendar"><b>Open filing calendar →</b></a>
+            </Notice>
+          </div>
+        )
+      })()}
+
       <TrialCta />
+
+      {/* autopilot: quantify what staying compliant is worth, in naira */}
+      {(() => {
+        const av = avoidedPenalties(state, cls)
+        if (av.total <= 0) return null
+        return (
+          <div className="trial-cta" style={{ marginBottom: 16 }}>
+            <div className="grow">
+              <span className="lock-chip" style={{ marginBottom: 7 }}><Icon name="shield" size={11} /> COMPLIANCE PAYS</span>
+              <div style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: 21, letterSpacing: '-0.02em', marginTop: 7 }}>
+                {naira(av.total)}+ in default fines currently avoided
+              </div>
+              <div className="small" style={{ opacity: 0.88, marginTop: 3 }}>
+                You're on-side of: {av.items.map((i) => i.label.toLowerCase()).join(' · ')}.
+              </div>
+            </div>
+            <div className="right" style={{ textAlign: 'right' }}>
+              {av.items.map((i) => (
+                <div key={i.label} className="small" title={i.basis} style={{ opacity: 0.85 }}>{naira(i.amount)} · {i.label}</div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {!state.onboarded && (
         <div className="mb16">

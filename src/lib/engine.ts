@@ -549,3 +549,30 @@ export function complianceScore(state: AppState, classification: Classification)
   const score = Math.round((checks.filter((c) => c.ok).length / checks.length) * 100)
   return { score, checks }
 }
+
+// ---------------------------------------------------------------------------
+// 10 · penalties avoided (conservative NTAA default-fine estimates)
+// ---------------------------------------------------------------------------
+
+export interface AvoidedPenalty { label: string; amount: number; basis: string }
+
+/**
+ * Quantifies the statutory default fines the business is currently ON-SIDE of.
+ * Conservative by design — first-month fines only, no compounding month counts,
+ * and inapplicable exposures pay nothing.
+ */
+export function avoidedPenalties(state: AppState, classification: Classification): { total: number; items: AvoidedPenalty[] } {
+  const items: AvoidedPenalty[] = []
+  const hasTIN = /^\d{8,13}$/.test(state.profile.tin.replace(/\D/g, ''))
+  if (hasTIN)
+    items.push({ label: 'TIN registration default', amount: PENALTIES.noTIN.firstMonth, basis: 'NTAA s.100 — ₦50k first month, ₦25k/month after' })
+  const vendorExpenses = state.transactions.filter((t) => t.type === 'expense' && t.amount >= 25_000)
+  if (vendorExpenses.length > 0 && vendorExpenses.every((t) => t.partyHasTIN))
+    items.push({ label: 'Unregistered-vendor contracts', amount: PENALTIES.unregisteredVendor.amount, basis: 'NTAA 2025 — ₦5,000,000 per contract' })
+  if (state.transactions.some((t) => t.date.startsWith(String(state.year))))
+    items.push({ label: 'Books-of-account default', amount: PENALTIES.lateFiling.firstMonth, basis: 'NTAA 2025 — ₦100k first month for missing records' })
+  if (classification.isSmall && state.onboarded)
+    items.push({ label: 'CIT filing (nil/value) — on track', amount: PENALTIES.lateFiling.firstMonth, basis: 'filing stays mandatory even at 0% rate' })
+  const total = items.reduce((s, i) => s + i.amount, 0)
+  return { total, items }
+}

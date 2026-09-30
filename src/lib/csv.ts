@@ -2,7 +2,7 @@ import { Transaction, VatTreatment } from './types'
 import { DISPOSAL_CATEGORY } from './rules'
 import { uid } from './format'
 
-const HEAD = 'date,type,category,description,amount,vat,wht_rate,party_name,party_has_tin,non_deductible,cost_basis,is_disposal'
+const HEAD = 'date,type,category,description,amount,vat,wht_rate,party_name,party_has_tin,non_deductible,cost_basis,is_disposal,wht_cert_received'
 
 /** quote-aware CSV line splitter (handles "quoted, commas" and "" escapes) */
 export function splitCSVLine(line: string): string[] {
@@ -32,6 +32,7 @@ export function transactionsToCSV(txs: Transaction[]): string {
       t.date, t.type, esc(t.category), esc(t.description), t.amount,
       t.vat, t.whtRate ?? 0, esc(t.partyName ?? ''), t.partyHasTIN ? 'yes' : 'no',
       t.nonDeductible ? 'yes' : 'no', t.costBasis ?? 0, t.isDisposal ? 'yes' : 'no',
+      t.whtCertReceived ? 'yes' : 'no',
     ].join(',')
   )
   return [HEAD, ...rows].join('\n')
@@ -47,7 +48,7 @@ export function parseTransactionsCSV(text: string): { txs: Transaction[]; errors
   data.forEach((line, idx) => {
     const c = splitCSVLine(line)
     if (c.length < 5) { errors.push(`Row ${idx + 2}: not enough columns`); return }
-    const [date, type, category, description, amountS, vatS, whtS, party, tinSu, ndS, cbS, dispS] = c
+    const [date, type, category, description, amountS, vatS, whtS, party, tinSu, ndS, cbS, dispS, certS] = c
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { errors.push(`Row ${idx + 2}: date must be yyyy-mm-dd`); return }
     if (type !== 'income' && type !== 'expense') { errors.push(`Row ${idx + 2}: type must be income|expense`); return }
     const amount = Number(amountS)
@@ -69,6 +70,7 @@ export function parseTransactionsCSV(text: string): { txs: Transaction[]; errors
       nonDeductible: (ndS || 'no').toLowerCase() === 'yes',
       costBasis: Number(cbS) > 0 ? Number(cbS) : 0,
       isDisposal,
+      whtCertReceived: (certS || '').toLowerCase() === 'yes',
     })
   })
   return { txs, errors }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
-import { AppState, BusinessProfile, Employee, FilingRecord, Transaction } from '../lib/types'
+import { AppState, BusinessProfile, Employee, FilingRecord, Invoice, Transaction } from '../lib/types'
 import { emptyState, smallFoodsScenario, solePropScenario, standardTradingScenario } from '../lib/sample'
 import {
   Entitlement, FREE_SUB, Payment, Period, Subscription, computeEntitlement,
@@ -17,6 +17,7 @@ export interface WorkspaceData {
   transactions: Transaction[]
   employees: Employee[]
   filings: FilingRecord[]
+  invoices: Invoice[]
   year: number
   onboarded: boolean
 }
@@ -44,6 +45,7 @@ function captureWs(s: PersistedState): WorkspaceData {
     transactions: s.transactions,
     employees: s.employees,
     filings: s.filings,
+    invoices: s.invoices,
     year: s.year,
     onboarded: s.onboarded,
   }
@@ -51,7 +53,7 @@ function captureWs(s: PersistedState): WorkspaceData {
 
 const emptyWs = (): WorkspaceData => {
   const e = emptyState()
-  return { profile: e.profile, transactions: [], employees: [], filings: [], year: e.year, onboarded: e.onboarded }
+  return { profile: e.profile, transactions: [], employees: [], filings: [], invoices: [], year: e.year, onboarded: e.onboarded }
 }
 
 const MAIN_WS = 'ws-main'
@@ -82,6 +84,10 @@ type Action =
   | { type: 'addWorkspace'; id: string }
   | { type: 'switchWorkspace'; id: string }
   | { type: 'deleteWorkspace'; id: string }
+  | { type: 'updateTx'; tx: Transaction }
+  | { type: 'addInvoice'; inv: Invoice }
+  | { type: 'updateInvoice'; inv: Invoice }
+  | { type: 'deleteInvoice'; id: string }
 
 function reducer(s: PersistedState, a: Action): PersistedState {
   const now = new Date()
@@ -151,6 +157,14 @@ function reducer(s: PersistedState, a: Action): PersistedState {
       return { ...s, gateMode: a.mode, gateOverride: true }
     case 'recordBackup':
       return { ...s, lastBackupAt: now.toISOString() }
+    case 'updateTx':
+      return { ...s, transactions: s.transactions.map((t) => (t.id === a.tx.id ? a.tx : t)) }
+    case 'addInvoice':
+      return { ...s, invoices: [...s.invoices, a.inv] }
+    case 'updateInvoice':
+      return { ...s, invoices: s.invoices.map((i) => (i.id === a.inv.id ? a.inv : i)) }
+    case 'deleteInvoice':
+      return { ...s, invoices: s.invoices.filter((i) => i.id !== a.id) }
 
     // ── workspaces (accountant mode): business data hops between slots ──────
     case 'addWorkspace': {
@@ -239,7 +253,8 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
     ...emptyState(),
     ...parsed,
     profile: { ...emptyState().profile, ...(parsed.profile ?? {}) },
-    transactions: (parsed.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, ...(t as Partial<Transaction>) }) as Transaction),
+    transactions: (parsed.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, whtCertReceived: false, ...(t as Partial<Transaction>) }) as Transaction),
+    invoices: parsed.invoices ?? [],
     // schema migration: employees gained annualRent/nhf/nhisAmount/benefitsInKind —
     // persisted records predating the fields are backfilled with neutral values
     employees: (parsed.employees ?? []).map((e) => ({ annualRent: 0, nhf: false, nhisAmount: 0, benefitsInKind: 0, ...(e as Partial<Employee>) }) as Employee),
@@ -259,9 +274,10 @@ function mergeDefaults(parsed: Partial<PersistedState>): PersistedState {
         {
           ...d,
           profile: { ...emptyState().profile, ...(d.profile ?? {}) },
-          transactions: (d.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, ...(t as Partial<Transaction>) }) as Transaction),
+          transactions: (d.transactions ?? []).map((t) => ({ isDisposal: false, costBasis: 0, whtCertReceived: false, ...(t as Partial<Transaction>) }) as Transaction),
           employees: (d.employees ?? []).map((e) => ({ annualRent: 0, nhf: false, nhisAmount: 0, benefitsInKind: 0, ...(e as Partial<Employee>) }) as Employee),
           filings: d.filings ?? [],
+          invoices: d.invoices ?? [],
           year: d.year ?? emptyState().year,
           onboarded: d.onboarded ?? false,
         },

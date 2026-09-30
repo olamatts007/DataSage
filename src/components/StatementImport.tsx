@@ -126,6 +126,7 @@ export default function StatementImport({
         nonDeductible: r.suggestion.nonDeductible && r.type === 'expense',
         isDisposal: false,
         costBasis: 0,
+        whtCertReceived: false,
       }
     })
     onImport(txs)

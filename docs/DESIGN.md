@@ -306,3 +306,18 @@ offer conversion to full bookkeeping as the upgrade path. Deliberately not built
 state presumptive rate tables vary and publishing hard numbers without verified schedules
 risks exactly the hallucination this project rejects. UI placeholder and data model
 (`presumptiveBand?: string`) should wait for a verified rule pack.
+
+### v4 — Invoice-first workflow & compliance autopilot
+- **Invoices** (`#/invoices`): VAT-aware sales documents are the MSME's daily action.
+  Draft → issue → print/WhatsApp (wa.me deep link with an itemised summary) →
+  one-click **post to ledger**. Posting groups lines by VAT treatment (standard /
+  zero-rated / exempt) so the VAT engine stays exact; the ₦100m test and books
+  update instantly. Honest wedge posting respects free-tier record caps.
+- **Compliance autopilot**: (a) urgent-deadline banner on Overview (first
+  overdue/due-in-10-days obligation with its NTAA penalty, one tap to the
+  calendar); (b) "Compliance pays" counter — conservative, first-month-fine-only
+  estimates of the default fines the business is currently on-side of
+  (TIN ₦50k, vendor-TIN ₦5m exposure, books ₦100k, small-co nil-filing ₦100k);
+  (c) WHT credit-note **chase-list** in Reports → WHT: credits grouped per
+  deducting customer with received/pending tracking (`whtCertReceived`), because
+  uncertified credits are routinely rejected at assessment.
